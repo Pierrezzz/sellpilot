@@ -1,63 +1,98 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SellPilot — crée tes annonces en quelques secondes</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velours Paris</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-<header class="nav">
-  <div class="logo">SellPilot</div>
-  <nav><a href="#how">Comment ça marche</a><a href="#pricing">Tarifs</a><button class="login">Connexion</button></nav>
-</header>
 
-<main>
-<section class="hero">
-  <div class="badge">✨ Ton assistant de vente IA</div>
-  <h1>Une photo.<br><span>Une annonce prête à vendre.</span></h1>
-  <p>SellPilot analyse ton objet et génère automatiquement un titre, une description, une catégorie, des mots-clés et un prix conseillé.</p>
-  <a class="cta" href="#app">Essayer gratuitement</a>
-  <p class="small">Aucune carte bancaire nécessaire pour tester.</p>
-</section>
+    <header>
+        <div class="logo">VELOURS PARIS</div>
 
-<section id="app" class="app-card">
-  <div class="app-head">
-    <div><b>Créer une annonce</b><span>Étape 1 sur 2</span></div>
-  </div>
-  <label class="drop" id="drop">
-    <input type="file" id="photo" accept="image/*" hidden>
-    <div class="upload-icon">＋</div>
-    <b>Ajoute une photo de ton objet</b>
-    <span>JPG, PNG ou WEBP</span>
-  </label>
-  <div id="preview" class="preview hidden"></div>
-  <button id="generate" class="generate" disabled>Générer mon annonce →</button>
-  <div id="result" class="result hidden">
-    <div class="result-title"><b>Annonce générée</b><button id="copy">Copier</button></div>
-    <div id="listing"></div>
-  </div>
-</section>
+        <nav>
+            <a href="#accueil">Accueil</a>
+            <a href="#collection">Collection</a>
+            <a href="#apropos">À propos</a>
+        </nav>
+    </header>
 
-<section id="how" class="section">
-  <h2>Vendre plus vite, sans rédiger.</h2>
-  <div class="grid">
-    <div><strong>01</strong><h3>📸 Photo</h3><p>Tu photographies ton objet.</p></div>
-    <div><strong>02</strong><h3>🤖 Analyse</h3><p>L'IA identifie ce qu'elle peut déduire.</p></div>
-    <div><strong>03</strong><h3>⚡ Annonce</h3><p>Tu obtiens un texte prêt à publier.</p></div>
-  </div>
-</section>
+    <main>
 
-<section id="pricing" class="pricing">
-  <div class="badge">Simple</div>
-  <h2>SellPilot Pro</h2>
-  <p class="price">14,99 € <span>/ mois</span></p>
-  <ul><li>✓ Générations illimitées</li><li>✓ Prix conseillé</li><li>✓ Titres & descriptions optimisés</li><li>✓ Historique des annonces</li></ul>
-  <button class="cta">Commencer</button>
-</section>
-</main>
+        <section id="accueil" class="hero">
+            <div class="hero-content">
+                <p class="subtitle">L'ÉLÉGANCE À LA FRANÇAISE</p>
 
-<footer>SellPilot — prototype MVP</footer>
-<script src="app.js"></script>
+                <h1>Le luxe,<br>autrement.</h1>
+
+                <p class="description">
+                    Des pièces élégantes et intemporelles pensées
+                    pour celles et ceux qui aiment le style sans excès.
+                </p>
+
+                <a href="#collection" class="button">
+                    Découvrir la collection
+                </a>
+            </div>
+        </section>
+
+        <section id="collection" class="collection">
+            <p class="subtitle">NOTRE SÉLECTION</p>
+
+            <h2>La collection</h2>
+
+            <div class="products">
+
+                <div class="product">
+                    <div class="product-image">Bijoux</div>
+                    <h3>Bijoux</h3>
+                    <p>Des pièces délicates et intemporelles.</p>
+                    <button onclick="showMessage('Bijoux')">
+                        Découvrir
+                    </button>
+                </div>
+
+                <div class="product">
+                    <div class="product-image">Montres</div>
+                    <h3>Montres</h3>
+                    <p>L'élégance minimaliste au quotidien.</p>
+                    <button onclick="showMessage('Montres')">
+                        Découvrir
+                    </button>
+                </div>
+
+                <div class="product">
+                    <div class="product-image">Essentiels</div>
+                    <h3>Essentiels</h3>
+                    <p>Des accessoires au style discret.</p>
+                    <button onclick="showMessage('Essentiels')">
+                        Découvrir
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="apropos" class="about">
+            <p class="subtitle">VELOURS PARIS</p>
+
+            <h2>L'élégance<br>dans la simplicité.</h2>
+
+            <p>
+                Velours Paris imagine une nouvelle vision du luxe :
+                des pièces accessibles, élégantes et pensées pour durer.
+            </p>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>© 2026 Velours Paris — Tous droits réservés.</p>
+    </footer>
+
+    <script src="app.js"></script>
+
 </body>
 </html>
