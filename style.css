@@ -10,212 +10,386 @@ html {
 
 body {
     font-family: Arial, Helvetica, sans-serif;
-    background: #f5f1eb;
-    color: #171717;
+    background: #f8f9fc;
+    color: #111827;
 }
 
 header {
-    height: 80px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    height: 72px;
     padding: 0 7%;
-    background: #f5f1eb;
-    border-bottom: 1px solid #ddd6cc;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(248, 249, 252, 0.95);
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .logo {
-    font-size: 20px;
-    font-weight: 600;
-    letter-spacing: 4px;
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.logo span {
+    color: #6d5dfc;
 }
 
 nav {
     display: flex;
-    gap: 35px;
+    align-items: center;
+    gap: 30px;
 }
 
 nav a {
+    color: #4b5563;
     text-decoration: none;
-    color: #171717;
     font-size: 14px;
 }
 
 nav a:hover {
-    opacity: 0.5;
+    color: #6d5dfc;
+}
+
+.nav-button {
+    background: #111827;
+    color: white !important;
+    padding: 11px 18px;
+    border-radius: 8px;
 }
 
 .hero {
-    min-height: 700px;
+    min-height: 650px;
     display: flex;
+    justify-content: center;
     align-items: center;
-    padding: 80px 10%;
-    background: #e9e2d8;
+    text-align: center;
+    padding: 100px 20px;
+    background:
+        radial-gradient(circle at 50% 20%, #e8e4ff 0, transparent 40%),
+        #f8f9fc;
 }
 
 .hero-content {
-    max-width: 650px;
+    max-width: 850px;
 }
 
-.subtitle {
-    font-size: 12px;
-    letter-spacing: 4px;
+.badge {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 30px;
+    background: #eeecff;
+    color: #5b4ee8;
+    font-size: 13px;
+    font-weight: 600;
     margin-bottom: 25px;
-    color: #666;
 }
 
 h1 {
-    font-family: Georgia, serif;
-    font-size: clamp(60px, 9vw, 120px);
-    font-weight: 400;
-    line-height: 0.95;
-    margin-bottom: 35px;
+    font-size: clamp(48px, 7vw, 82px);
+    line-height: 1.02;
+    letter-spacing: -4px;
+    margin-bottom: 30px;
 }
 
-.description {
-    max-width: 480px;
-    font-size: 17px;
+h1 span {
+    display: block;
+    color: #6d5dfc;
+}
+
+.hero-content > p:not(.small-text) {
+    max-width: 650px;
+    margin: auto;
+    color: #667085;
+    font-size: 18px;
     line-height: 1.7;
-    color: #555;
-    margin-bottom: 40px;
 }
 
-.button {
+.primary-button {
     display: inline-block;
-    padding: 16px 30px;
-    background: #171717;
+    margin-top: 35px;
+    padding: 16px 28px;
+    background: #6d5dfc;
     color: white;
     text-decoration: none;
+    border-radius: 9px;
+    font-weight: 600;
+    box-shadow: 0 10px 25px rgba(109, 93, 252, 0.25);
+}
+
+.primary-button:hover {
+    background: #5b4ee8;
+}
+
+.small-text {
+    margin-top: 18px;
+    color: #9ca3af;
     font-size: 13px;
-    letter-spacing: 1px;
 }
 
-.button:hover {
-    background: #444;
+.how {
+    padding: 110px 8%;
+    background: white;
 }
 
-.collection {
-    padding: 120px 8%;
+.section-title {
     text-align: center;
+    margin-bottom: 65px;
 }
 
-.collection h2,
-.about h2 {
-    font-family: Georgia, serif;
-    font-size: 55px;
-    font-weight: 400;
-    margin-bottom: 70px;
+.section-title > p {
+    color: #6d5dfc;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
 }
 
-.products {
+.section-title h2 {
+    font-size: 42px;
+    letter-spacing: -1.5px;
+}
+
+.steps {
+    max-width: 1100px;
+    margin: auto;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 30px;
 }
 
-.product {
+.step {
+    padding: 35px;
+    border: 1px solid #e5e7eb;
+    border-radius: 15px;
     background: white;
-    padding-bottom: 35px;
 }
 
-.product-image {
-    height: 350px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #ddd6cc;
-    font-family: Georgia, serif;
-    font-size: 30px;
-}
-
-.product h3 {
-    margin-top: 30px;
-    font-family: Georgia, serif;
-    font-size: 25px;
-    font-weight: 400;
-}
-
-.product p {
-    margin: 12px 20px 25px;
-    color: #666;
-    line-height: 1.5;
-}
-
-.product button {
-    padding: 12px 25px;
-    background: transparent;
-    border: 1px solid #171717;
-    cursor: pointer;
-}
-
-.product button:hover {
-    background: #171717;
-    color: white;
-}
-
-.about {
-    padding: 140px 15%;
-    background: #171717;
-    color: white;
-}
-
-.about .subtitle {
-    color: #aaa;
-}
-
-.about h2 {
+.step-number {
+    color: #6d5dfc;
+    font-size: 13px;
+    font-weight: 700;
     margin-bottom: 35px;
 }
 
-.about p:last-child {
-    max-width: 600px;
-    color: #bbb;
-    font-size: 18px;
-    line-height: 1.8;
+.step h3 {
+    font-size: 21px;
+    margin-bottom: 15px;
+}
+
+.step p {
+    color: #667085;
+    line-height: 1.6;
+}
+
+.generator {
+    padding: 110px 20px;
+    background: #f1f2f7;
+}
+
+.generator-card {
+    max-width: 700px;
+    margin: auto;
+    padding: 55px;
+    background: white;
+    border: 1px solid #e1e3eb;
+    border-radius: 18px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(20, 20, 50, 0.06);
+}
+
+.upload-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #eeecff;
+    color: #6d5dfc;
+    font-size: 28px;
+}
+
+.generator-card h2 {
+    font-size: 34px;
+    margin-bottom: 12px;
+}
+
+.generator-card > p {
+    color: #667085;
+    margin-bottom: 30px;
+}
+
+.upload-button {
+    display: inline-block;
+    padding: 13px 22px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.upload-button:hover {
+    border-color: #6d5dfc;
+    color: #6d5dfc;
+}
+
+#preview {
+    margin-top: 25px;
+}
+
+#preview img {
+    max-width: 260px;
+    max-height: 300px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.generate-button {
+    display: block;
+    width: 100%;
+    margin-top: 25px;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    background: #111827;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.generate-button:hover {
+    background: #374151;
+}
+
+.result {
+    margin-top: 25px;
+    text-align: left;
+}
+
+.pricing {
+    padding: 110px 8%;
+    background: white;
+}
+
+.pricing-cards {
+    max-width: 850px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+.price-card {
+    position: relative;
+    padding: 40px;
+    border: 1px solid #e1e3eb;
+    border-radius: 15px;
+}
+
+.price-card.featured {
+    border: 2px solid #6d5dfc;
+}
+
+.popular {
+    position: absolute;
+    top: -13px;
+    right: 25px;
+    padding: 6px 12px;
+    background: #6d5dfc;
+    color: white;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.price-card h3 {
+    font-size: 22px;
+}
+
+.price {
+    margin: 20px 0 30px;
+    font-size: 40px;
+    font-weight: 700;
+}
+
+.price span {
+    font-size: 14px;
+    color: #6b7280;
+    font-weight: 400;
+}
+
+.price-card ul {
+    list-style: none;
+    line-height: 2.2;
+    color: #4b5563;
+    margin-bottom: 30px;
+}
+
+.price-card button {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    border: 1px solid #111827;
+    background: white;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.price-card.featured button {
+    background: #6d5dfc;
+    border-color: #6d5dfc;
+    color: white;
 }
 
 footer {
-    padding: 30px;
-    text-align: center;
-    background: #171717;
-    color: #777;
-    border-top: 1px solid #333;
-    font-size: 12px;
+    padding: 45px 8%;
+    background: #111827;
+    color: #9ca3af;
 }
 
-@media (max-width: 800px) {
+footer .logo {
+    color: white;
+    margin-bottom: 12px;
+}
+
+footer p {
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+@media (max-width: 750px) {
 
     header {
         padding: 0 5%;
     }
 
-    nav {
-        gap: 15px;
-    }
-
-    nav a {
-        font-size: 12px;
+    nav a:not(.nav-button) {
+        display: none;
     }
 
     .hero {
-        min-height: 600px;
-        padding: 70px 7%;
+        padding: 80px 20px;
     }
 
-    .products {
+    h1 {
+        letter-spacing: -2px;
+    }
+
+    .steps,
+    .pricing-cards {
         grid-template-columns: 1fr;
     }
 
-    .collection {
-        padding: 90px 7%;
+    .generator-card {
+        padding: 35px 20px;
     }
 
-    .collection h2,
-    .about h2 {
-        font-size: 42px;
-    }
-
-    .about {
-        padding: 90px 8%;
+    .section-title h2 {
+        font-size: 34px;
     }
 }
