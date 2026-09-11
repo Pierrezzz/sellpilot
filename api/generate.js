@@ -69,9 +69,15 @@ Ne prétends pas connaître une information qui n'est pas visible. Si une inform
             });
         }
 
-        return res.status(200).json({
-            result: data.output_text
-        });
+       const text = data.output
+    ?.flatMap(item => item.content || [])
+    ?.filter(item => item.type === "output_text")
+    ?.map(item => item.text)
+    ?.join("\n") || "";
+
+return res.status(200).json({
+    result: text
+});
 
     } catch (error) {
         return res.status(500).json({
