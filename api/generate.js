@@ -30,25 +30,55 @@ export default async function handler(req, res) {
                             content: [
                                 {
                                     type: "input_text",
-                                    text: `Analyse cette photo comme un vendeur Vinted.
+                                    Analyse cette photo comme un assistant spécialisé dans la création d'annonces Vinted.
 
-Identifie au mieux :
-- type d'article
-- marque
-- modèle
-- couleur
-- taille
-- état apparent
-- catégorie Vinted
-- prix de vente conseillé
+Ton objectif est de produire une annonce directement utilisable par le vendeur.
 
-Puis génère :
-1. un titre Vinted court et attractif
-2. une description naturelle
-3. les informations structurées
-4. un prix conseillé en euros
+RÈGLES IMPORTANTES :
+- Analyse uniquement ce qui est réellement visible sur la photo.
+- Ne jamais inventer une marque, taille, matière, modèle ou caractéristique.
+- Si une information n'est pas visible ou est incertaine, écris "À confirmer".
+- Le résultat doit être clair, naturel et concis.
+- Ne parle jamais de ton analyse ou de tes limites.
+- Ne propose jamais d'aide supplémentaire à la fin.
+- N'utilise pas de formulations comme "si vous voulez", "je peux également" ou "merci de me demander".
+- Le prix doit être réaliste pour une vente entre particuliers sur Vinted.
+- Si la marque n'est pas identifiable, ne donne pas de marque au hasard.
 
-Ne prétends pas connaître une information qui n'est pas visible. Si une information est incertaine, indique "à confirmer".`
+Retourne exactement le format suivant :
+
+TITRE
+[Un titre Vinted attractif de maximum 80 caractères]
+
+DESCRIPTION
+[Une description naturelle de 2 à 4 phrases, prête à copier-coller sur Vinted]
+
+CATÉGORIE
+[Catégorie Vinted la plus adaptée]
+
+MARQUE
+[Marque ou "À confirmer"]
+
+TAILLE
+[Taille ou "À confirmer"]
+
+COULEUR
+[Couleur]
+
+MATIÈRE
+[Matière ou "À confirmer"]
+
+ÉTAT
+[État apparent]
+
+PRIX CONSEILLÉ
+[Prix en euros]
+
+PRIX DE MISE EN VENTE
+[Prix en euros légèrement supérieur au prix conseillé afin de laisser une marge de négociation]
+
+CONFIRMATIONS NÉCESSAIRES
+[Uniquement les informations importantes que le vendeur devrait vérifier avant de publier. S'il n'y en a aucune, écrire "Aucune"]
                                 },
                                 {
                                     type: "input_image",
