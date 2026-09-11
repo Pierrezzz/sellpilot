@@ -3,94 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Velours Paris</title>
+    <title>SellPilot — Crée tes annonces Vinted en quelques secondes</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
     <header>
-        <div class="logo">VELOURS PARIS</div>
+        <div class="logo">SELL<span>PILOT</span></div>
 
         <nav>
-            <a href="#accueil">Accueil</a>
-            <a href="#collection">Collection</a>
-            <a href="#apropos">À propos</a>
+            <a href="#how">Comment ça marche</a>
+            <a href="#pricing">Tarifs</a>
+            <a href="#generator" class="nav-button">Créer une annonce</a>
         </nav>
     </header>
 
     <main>
 
-        <section id="accueil" class="hero">
+        <section class="hero">
             <div class="hero-content">
-                <p class="subtitle">L'ÉLÉGANCE À LA FRANÇAISE</p>
 
-                <h1>Le luxe,<br>autrement.</h1>
+                <div class="badge">
+                    ✦ L'IA au service de tes ventes
+                </div>
 
-                <p class="description">
-                    Des pièces élégantes et intemporelles pensées
-                    pour celles et ceux qui aiment le style sans excès.
+                <h1>
+                    Crée tes annonces Vinted
+                    <span>en quelques secondes.</span>
+                </h1>
+
+                <p>
+                    Ajoute une photo de ton article et SellPilot
+                    génère automatiquement une annonce complète,
+                    prête à publier sur Vinted.
                 </p>
 
-                <a href="#collection" class="button">
-                    Découvrir la collection
+                <a href="#generator" class="primary-button">
+                    Créer mon annonce →
                 </a>
-            </div>
-        </section>
 
-        <section id="collection" class="collection">
-            <p class="subtitle">NOTRE SÉLECTION</p>
-
-            <h2>La collection</h2>
-
-            <div class="products">
-
-                <div class="product">
-                    <div class="product-image">Bijoux</div>
-                    <h3>Bijoux</h3>
-                    <p>Des pièces délicates et intemporelles.</p>
-                    <button onclick="showMessage('Bijoux')">
-                        Découvrir
-                    </button>
-                </div>
-
-                <div class="product">
-                    <div class="product-image">Montres</div>
-                    <h3>Montres</h3>
-                    <p>L'élégance minimaliste au quotidien.</p>
-                    <button onclick="showMessage('Montres')">
-                        Découvrir
-                    </button>
-                </div>
-
-                <div class="product">
-                    <div class="product-image">Essentiels</div>
-                    <h3>Essentiels</h3>
-                    <p>Des accessoires au style discret.</p>
-                    <button onclick="showMessage('Essentiels')">
-                        Découvrir
-                    </button>
-                </div>
+                <p class="small-text">
+                    Simple · Rapide · Sans prise de tête
+                </p>
 
             </div>
         </section>
 
-        <section id="apropos" class="about">
-            <p class="subtitle">VELOURS PARIS</p>
 
-            <h2>L'élégance<br>dans la simplicité.</h2>
+        <section id="how" class="how">
 
-            <p>
-                Velours Paris imagine une nouvelle vision du luxe :
-                des pièces accessibles, élégantes et pensées pour durer.
-            </p>
+            <div class="section-title">
+                <p>COMMENT ÇA MARCHE ?</p>
+                <h2>Une annonce en 3 étapes.</h2>
+            </div>
+
+            <div class="steps">
+
+                <div class="step">
+                    <div class="step-number">01</div>
+                    <h3>Ajoute une photo</h3>
+                    <p>
+                        Prends simplement ton article en photo
+                        et ajoute-la à SellPilot.
+                    </p>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">02</div>
+                    <h3>L'IA analyse</h3>
+                    <p>
+                        SellPilot identifie l'article et prépare
+                        automatiquement les informations importantes.
+                    </p>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">03</div>
+                    <h3>Publie ton annonce</h3>
+                    <p>
+                        Récupère un titre, une description et un prix
+                        conseillé prêts à utiliser.
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section id="generator" class="generator">
+
+            <div class="generator-card">
+
+                <div class="upload-icon">＋</div>
+
+                <h2>Crée ton annonce</h2>
+
+                <p>
+                    Ajoute une photo de ton article pour commencer.
+                </p>
+
+                <label for="photo" class="upload-button">
+                    Ajouter une photo
+                </label>
+
+                <input
+                    type="file"
+                    id="photo"
+                    accept="image/*"
+                    hidden
+                >
+
+                <div id="preview"></div>
+
+                <button id="generate" class="generate-button">
+                    Générer mon annonce
+                </button>
+
+                <div id="result" class="result"></div>
+
+            </div>
+
+        </section>
+
+
+        <section id="pricing" class="pricing">
+
+            <div class="section-title">
+                <p>DES OFFRES SIMPLES</p>
+                <h2>Choisis ton abonnement.</h2>
+            </div>
+
+            <div class="pricing-cards">
+
+                <div class="price-card">
+                    <h3>Free</h3>
+                    <div class="price">0€<span>/mois</span></div>
+
+                    <ul>
+                        <li>✓ 5 annonces / mois</li>
+                        <li>✓ Génération IA</li>
+                        <li>✓ Prix conseillé</li>
+                    </ul>
+
+                    <button>Commencer</button>
+                </div>
+
+
+                <div class="price-card featured">
+
+                    <div class="popular">POPULAIRE</div>
+
+                    <h3>Pro</h3>
+
+                    <div class="price">
+                        4,99€<span>/mois</span>
+                    </div>
+
+                    <ul>
+                        <li>✓ Annonces illimitées</li>
+                        <li>✓ Génération IA</li>
+                        <li>✓ Prix conseillé</li>
+                        <li>✓ Mots-clés optimisés</li>
+                        <li>✓ Historique des annonces</li>
+                    </ul>
+
+                    <button>Passer à Pro</button>
+
+                </div>
+
+            </div>
+
         </section>
 
     </main>
 
+
     <footer>
-        <p>© 2026 Velours Paris — Tous droits réservés.</p>
+        <div class="logo">SELL<span>PILOT</span></div>
+        <p>Vends plus simplement.</p>
+        <p>© 2026 SellPilot</p>
     </footer>
+
 
     <script src="app.js"></script>
 
