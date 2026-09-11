@@ -1,1 +1,221 @@
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;color:#151515;background:#faf9f6}.nav{height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 6%;border-bottom:1px solid #e8e5df;background:#faf9f6}.logo{font-weight:800;font-size:22px;letter-spacing:-.5px}.nav nav{display:flex;align-items:center;gap:28px}.nav a{color:#555;text-decoration:none;font-size:14px}.login{border:1px solid #ddd8cf;background:white;border-radius:10px;padding:10px 15px}.hero{text-align:center;max-width:820px;margin:95px auto 65px;padding:0 20px}.badge{display:inline-block;background:#eeeae2;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:700}.hero h1{font-size:64px;line-height:.98;letter-spacing:-3px;margin:22px 0}.hero h1 span{color:#6f6253}.hero p{font-size:18px;line-height:1.6;color:#666;max-width:650px;margin:0 auto 25px}.cta,.generate{display:inline-block;border:0;background:#171717;color:white;border-radius:12px;padding:14px 21px;font-weight:700;text-decoration:none;cursor:pointer}.small{font-size:12px!important;margin-top:12px!important;color:#999!important}.app-card{max-width:720px;margin:0 auto 110px;background:white;border:1px solid #e3ded5;border-radius:20px;padding:28px;box-shadow:0 15px 45px #0000000b}.app-head{display:flex;justify-content:space-between;margin-bottom:20px}.app-head span{color:#999;font-size:13px}.drop{height:240px;border:2px dashed #d8d1c6;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;background:#fcfbf9}.drop span{font-size:12px;color:#999}.upload-icon{font-size:36px;color:#8a7d6e}.preview{margin:16px 0;text-align:center}.preview img{max-height:280px;max-width:100%;border-radius:12px}.generate{width:100%;margin-top:16px}.generate:disabled{opacity:.4;cursor:not-allowed}.result{margin-top:22px;padding:20px;background:#f6f3ee;border-radius:14px}.result-title{display:flex;justify-content:space-between;margin-bottom:12px}.result-title button{border:0;background:white;border-radius:8px;padding:7px 10px;cursor:pointer}.result p{line-height:1.55;color:#444}.section{max-width:1000px;margin:0 auto 110px;padding:0 20px}.section h2,.pricing h2{font-size:38px;letter-spacing:-1.5px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.grid>div{padding:25px;background:white;border:1px solid #e6e1d8;border-radius:15px}.grid strong{color:#9b8b78}.grid h3{margin-bottom:8px}.grid p{color:#666}.pricing{max-width:430px;text-align:center;margin:0 auto 110px;background:#171717;color:white;border-radius:22px;padding:38px}.pricing .badge{background:#383838;color:white}.pricing h2{margin-bottom:0}.price{font-size:48px;font-weight:800;margin:15px 0}.price span{font-size:15px;color:#aaa}.pricing ul{list-style:none;padding:0;text-align:left;line-height:2;color:#ddd}.pricing .cta{background:white;color:#171717;width:100%;margin-top:10px}footer{text-align:center;padding:35px;color:#999;font-size:12px;border-top:1px solid #e8e5df}@media(max-width:700px){.nav nav a{display:none}.hero h1{font-size:45px}.grid{grid-template-columns:1fr}.hero{margin-top:65px}}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f5f1eb;
+    color: #171717;
+}
+
+header {
+    height: 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 7%;
+    background: #f5f1eb;
+    border-bottom: 1px solid #ddd6cc;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 4px;
+}
+
+nav {
+    display: flex;
+    gap: 35px;
+}
+
+nav a {
+    text-decoration: none;
+    color: #171717;
+    font-size: 14px;
+}
+
+nav a:hover {
+    opacity: 0.5;
+}
+
+.hero {
+    min-height: 700px;
+    display: flex;
+    align-items: center;
+    padding: 80px 10%;
+    background: #e9e2d8;
+}
+
+.hero-content {
+    max-width: 650px;
+}
+
+.subtitle {
+    font-size: 12px;
+    letter-spacing: 4px;
+    margin-bottom: 25px;
+    color: #666;
+}
+
+h1 {
+    font-family: Georgia, serif;
+    font-size: clamp(60px, 9vw, 120px);
+    font-weight: 400;
+    line-height: 0.95;
+    margin-bottom: 35px;
+}
+
+.description {
+    max-width: 480px;
+    font-size: 17px;
+    line-height: 1.7;
+    color: #555;
+    margin-bottom: 40px;
+}
+
+.button {
+    display: inline-block;
+    padding: 16px 30px;
+    background: #171717;
+    color: white;
+    text-decoration: none;
+    font-size: 13px;
+    letter-spacing: 1px;
+}
+
+.button:hover {
+    background: #444;
+}
+
+.collection {
+    padding: 120px 8%;
+    text-align: center;
+}
+
+.collection h2,
+.about h2 {
+    font-family: Georgia, serif;
+    font-size: 55px;
+    font-weight: 400;
+    margin-bottom: 70px;
+}
+
+.products {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.product {
+    background: white;
+    padding-bottom: 35px;
+}
+
+.product-image {
+    height: 350px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ddd6cc;
+    font-family: Georgia, serif;
+    font-size: 30px;
+}
+
+.product h3 {
+    margin-top: 30px;
+    font-family: Georgia, serif;
+    font-size: 25px;
+    font-weight: 400;
+}
+
+.product p {
+    margin: 12px 20px 25px;
+    color: #666;
+    line-height: 1.5;
+}
+
+.product button {
+    padding: 12px 25px;
+    background: transparent;
+    border: 1px solid #171717;
+    cursor: pointer;
+}
+
+.product button:hover {
+    background: #171717;
+    color: white;
+}
+
+.about {
+    padding: 140px 15%;
+    background: #171717;
+    color: white;
+}
+
+.about .subtitle {
+    color: #aaa;
+}
+
+.about h2 {
+    margin-bottom: 35px;
+}
+
+.about p:last-child {
+    max-width: 600px;
+    color: #bbb;
+    font-size: 18px;
+    line-height: 1.8;
+}
+
+footer {
+    padding: 30px;
+    text-align: center;
+    background: #171717;
+    color: #777;
+    border-top: 1px solid #333;
+    font-size: 12px;
+}
+
+@media (max-width: 800px) {
+
+    header {
+        padding: 0 5%;
+    }
+
+    nav {
+        gap: 15px;
+    }
+
+    nav a {
+        font-size: 12px;
+    }
+
+    .hero {
+        min-height: 600px;
+        padding: 70px 7%;
+    }
+
+    .products {
+        grid-template-columns: 1fr;
+    }
+
+    .collection {
+        padding: 90px 7%;
+    }
+
+    .collection h2,
+    .about h2 {
+        font-size: 42px;
+    }
+
+    .about {
+        padding: 90px 8%;
+    }
+}
