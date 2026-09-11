@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SellPilot — crée tes annonces en quelques secondes</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav">
+  <div class="logo">SellPilot</div>
+  <nav><a href="#how">Comment ça marche</a><a href="#pricing">Tarifs</a><button class="login">Connexion</button></nav>
+</header>
+
+<main>
+<section class="hero">
+  <div class="badge">✨ Ton assistant de vente IA</div>
+  <h1>Une photo.<br><span>Une annonce prête à vendre.</span></h1>
+  <p>SellPilot analyse ton objet et génère automatiquement un titre, une description, une catégorie, des mots-clés et un prix conseillé.</p>
+  <a class="cta" href="#app">Essayer gratuitement</a>
+  <p class="small">Aucune carte bancaire nécessaire pour tester.</p>
+</section>
+
+<section id="app" class="app-card">
+  <div class="app-head">
+    <div><b>Créer une annonce</b><span>Étape 1 sur 2</span></div>
+  </div>
+  <label class="drop" id="drop">
+    <input type="file" id="photo" accept="image/*" hidden>
+    <div class="upload-icon">＋</div>
+    <b>Ajoute une photo de ton objet</b>
+    <span>JPG, PNG ou WEBP</span>
+  </label>
+  <div id="preview" class="preview hidden"></div>
+  <button id="generate" class="generate" disabled>Générer mon annonce →</button>
+  <div id="result" class="result hidden">
+    <div class="result-title"><b>Annonce générée</b><button id="copy">Copier</button></div>
+    <div id="listing"></div>
+  </div>
+</section>
+
+<section id="how" class="section">
+  <h2>Vendre plus vite, sans rédiger.</h2>
+  <div class="grid">
+    <div><strong>01</strong><h3>📸 Photo</h3><p>Tu photographies ton objet.</p></div>
+    <div><strong>02</strong><h3>🤖 Analyse</h3><p>L'IA identifie ce qu'elle peut déduire.</p></div>
+    <div><strong>03</strong><h3>⚡ Annonce</h3><p>Tu obtiens un texte prêt à publier.</p></div>
+  </div>
+</section>
+
+<section id="pricing" class="pricing">
+  <div class="badge">Simple</div>
+  <h2>SellPilot Pro</h2>
+  <p class="price">14,99 € <span>/ mois</span></p>
+  <ul><li>✓ Générations illimitées</li><li>✓ Prix conseillé</li><li>✓ Titres & descriptions optimisés</li><li>✓ Historique des annonces</li></ul>
+  <button class="cta">Commencer</button>
+</section>
+</main>
+
+<footer>SellPilot — prototype MVP</footer>
+<script src="app.js"></script>
+</body>
+</html>
