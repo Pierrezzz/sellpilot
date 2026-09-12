@@ -685,3 +685,84 @@ footer p {
         font-size: 14px;
     }
 }
+/* ================================
+   EDITION DE L'ANNONCE
+   ================================ */
+
+.editable-title {
+    width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 17px;
+    font-weight: 600;
+    color: #111827;
+    background: #fff;
+    outline: none;
+    transition: 0.2s ease;
+}
+
+.editable-title:focus {
+    border-color: #6d5dfc;
+    box-shadow: 0 0 0 3px rgba(109, 93, 252, 0.1);
+}
+
+.editable-description {
+    width: 100%;
+    min-height: 140px;
+    resize: vertical;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #374151;
+    background: #fff;
+    outline: none;
+    transition: 0.2s ease;
+}
+
+.editable-description:focus {
+    border-color: #6d5dfc;
+    box-shadow: 0 0 0 3px rgba(109, 93, 252, 0.1);
+}
+
+
+/* ================================
+   ACTIONS
+   ================================ */
+
+.result-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.new-listing-button {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: white;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.new-listing-button:hover {
+    border-color: #6d5dfc;
+    color: #6d5dfc;
+    background: #faf9ff;
+}
+
+@media (max-width: 600px) {
+
+    .result-actions {
+        grid-template-columns: 1fr;
+    }
+
+}
