@@ -225,27 +225,92 @@ Si la marque est inconnue, utilise un titre générique précis.
 7. DESCRIPTION
 ==============================
 
-La description doit :
+La description sera copiée directement par le vendeur dans son annonce Vinted.
 
-- contenir 2 à 4 phrases ;
-- être naturelle ;
-- être honnête ;
-- présenter l'article simplement ;
-- mentionner les informations importantes réellement connues ;
-- mentionner les défauts visibles ;
-- ne pas promettre quelque chose qui n'est pas vérifiable ;
-- ne pas utiliser un ton exagérément commercial.
+Elle doit donc être :
 
-Ne pas écrire automatiquement :
+- naturelle ;
+- claire ;
+- agréable à lire ;
+- concise ;
+- légèrement attractive mais honnête ;
+- composée de 2 à 4 phrases ;
+- directement prête à publier.
+
+RÈGLE ESSENTIELLE :
+
+La description ne doit contenir AUCUN doute interne lié à ton analyse.
+
+N'utilise jamais dans la description les expressions suivantes :
+
+- "À confirmer" ;
+- "probablement" ;
+- "il semble que" ;
+- "je pense que" ;
+- "d'après les photos" ;
+- "sous réserve" ;
+- "peut-être" ;
+- "l'état reste à vérifier" ;
+- "je ne peux pas confirmer" ;
+- "non vérifié".
+
+Toutes les incertitudes doivent apparaître uniquement dans la section :
+
+CONFIRMATIONS NÉCESSAIRES
+
+La description doit utiliser uniquement :
+
+- les caractéristiques réellement certaines ;
+- les éléments clairement visibles ;
+- les défauts clairement visibles ;
+- une formulation neutre lorsque certaines informations sont inconnues.
+
+Si la marque, la taille, la matière ou le modèle ne sont pas certains :
+
+- ne les invente pas ;
+- ne les mentionne pas dans la description ;
+- indique l'incertitude uniquement dans "CONFIRMATIONS NÉCESSAIRES".
+
+Si l'état général n'est pas suffisamment certain, ne donne pas de jugement définitif sur l'état dans la description.
+
+Si un défaut est clairement visible, mentionne-le simplement et honnêtement.
+
+Si aucun défaut n'est clairement visible, ne promets jamais que l'article est parfait, impeccable ou sans défaut.
+
+Tu peux utiliser des formulations neutres comme :
+
+- "Article présentant quelques signes d'utilisation."
+- "Modèle sobre et facile à porter au quotidien."
+- "Article vendu tel qu'il apparaît sur les photos."
+- "Quelques traces d'utilisation sont visibles sur l'article."
+- "Article pratique et polyvalent."
+
+Tu peux mentionner un état dans la description uniquement s'il est suffisamment confirmé par les photos.
+
+N'utilise pas automatiquement les expressions suivantes :
 
 - "excellent état" ;
 - "comme neuf" ;
+- "parfait état" ;
 - "qualité exceptionnelle" ;
 - "article rare" ;
-- "authentique" ;
 - "jamais porté" ;
+- "authentique" ;
+- "sans aucun défaut" ;
+- "impeccable".
 
-sauf si cela est réellement confirmé par les photos ou par les informations fournies.
+Ces expressions sont interdites sauf si elles sont réellement justifiées par des éléments certains et clairement visibles.
+
+La description ne doit contenir :
+
+- aucune analyse technique ;
+- aucune explication sur tes incertitudes ;
+- aucune question destinée au vendeur ;
+- aucune information à vérifier ;
+- aucun commentaire sur la qualité des photos ;
+- aucun avertissement interne.
+
+Les informations à vérifier doivent rester exclusivement dans la section "CONFIRMATIONS NÉCESSAIRES".
 
 ==============================
 8. CATÉGORIE VINTED
