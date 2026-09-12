@@ -1,3 +1,39 @@
+async function searchMarket(query) {
+
+    const response = await fetch(
+        "https://api.tavily.com/search",
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                api_key: process.env.TAVILY_API_KEY,
+                query: query,
+                search_depth: "advanced",
+                max_results: 8,
+                include_answer: false,
+                include_raw_content: false
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.detail ||
+            data.error ||
+            "Tavily API error"
+        );
+    }
+
+    return data.results || [];
+}
+
+
 module.exports = async function handler(req, res) {
 
     if (req.method !== "POST") {
