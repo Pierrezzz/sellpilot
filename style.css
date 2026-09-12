@@ -393,3 +393,295 @@ footer p {
         font-size: 34px;
     }
 }
+/* ================================
+   SELLPILOT — RESULTATS IA
+   ================================ */
+
+.result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.result-header h2 {
+    font-size: 24px;
+    letter-spacing: -0.5px;
+}
+
+.copy-all-button {
+    border: none;
+    background: #6d5dfc;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.copy-all-button:hover {
+    background: #5b4ee8;
+    transform: translateY(-1px);
+}
+
+
+/* Cartes principales */
+
+.result-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.card-header span {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #6d5dfc;
+}
+
+.card-header button {
+    border: 1px solid #e5e7eb;
+    background: white;
+    color: #4b5563;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.card-header button:hover {
+    border-color: #6d5dfc;
+    color: #6d5dfc;
+}
+
+.card-content {
+    color: #374151;
+    line-height: 1.6;
+    font-size: 15px;
+}
+
+.title-content {
+    font-size: 17px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.description-content {
+    white-space: normal;
+}
+
+
+/* Informations */
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.info-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.info-card span {
+    display: block;
+    color: #9ca3af;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 7px;
+}
+
+.info-card strong {
+    color: #111827;
+    font-size: 14px;
+}
+
+
+/* Prix */
+
+.price-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.price-container .price-card {
+    position: static;
+    padding: 20px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+.price-container .price-card span {
+    display: block;
+    color: #667085;
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.price-container .price-card strong {
+    font-size: 25px;
+    color: #111827;
+}
+
+.price-container .price-card.highlight {
+    border: 2px solid #6d5dfc;
+    background: #faf9ff;
+}
+
+.price-container .price-card.highlight strong {
+    color: #6d5dfc;
+}
+
+
+/* À vérifier */
+
+.confirmation-card {
+    background: #fafafa;
+}
+
+.confirmation-card .card-content {
+    color: #667085;
+    font-size: 14px;
+}
+
+
+/* Chargement */
+
+.loading {
+    padding: 35px 20px;
+    text-align: center;
+    color: #667085;
+}
+
+.spinner {
+    width: 30px;
+    height: 30px;
+    margin: 0 auto 15px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #6d5dfc;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* Erreurs */
+
+.error-message {
+    color: #dc2626;
+    padding: 15px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+}
+
+.error-box {
+    padding: 18px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    color: #991b1b;
+}
+
+.error-box p {
+    margin-top: 6px;
+    font-size: 14px;
+}
+
+
+/* Message "Copié !" */
+
+.copy-message {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111827;
+    color: white;
+    padding: 11px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    z-index: 999;
+    animation: copyAppear 0.2s ease;
+}
+
+@keyframes copyAppear {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+
+/* Mobile */
+
+@media (max-width: 750px) {
+
+    .result-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .copy-all-button {
+        width: 100%;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .price-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 450px) {
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .result-card {
+        padding: 16px;
+    }
+
+    .card-content {
+        font-size: 14px;
+    }
+}
