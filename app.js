@@ -3,7 +3,7 @@ const preview = document.getElementById("preview");
 const generateButton = document.getElementById("generate");
 const result = document.getElementById("result");
 
-let selectedImage = null;
+let selectedImages = [];
 let currentData = {};
 
 
@@ -13,22 +13,57 @@ let currentData = {};
 
 photoInput.addEventListener("change", function () {
 
-    const file = this.files[0];
+    const files = Array.from(this.files);
 
-    if (!file) {
+    if (!files.length) {
         return;
     }
 
-    selectedImage = file;
+    selectedImages = files;
 
-    const imageURL = URL.createObjectURL(file);
-
-    preview.innerHTML = `
-        <img src="${imageURL}" alt="Article sélectionné">
-    `;
+    displayImagePreviews();
 
     result.innerHTML = "";
 });
+
+
+// ================================
+// APERCU DES PHOTOS
+// ================================
+
+function displayImagePreviews() {
+
+    preview.innerHTML = `
+        <div class="preview-header">
+            <span>${selectedImages.length} photo${selectedImages.length > 1 ? "s" : ""} sélectionnée${selectedImages.length > 1 ? "s" : ""}</span>
+        </div>
+
+        <div class="preview-grid">
+
+            ${selectedImages.map((file, index) => {
+
+                const imageURL = URL.createObjectURL(file);
+
+                return `
+                    <div class="preview-item">
+
+                        <img
+                            src="${imageURL}"
+                            alt="Photo ${index + 1}"
+                        >
+
+                        <span>
+                            Photo ${index + 1}
+                        </span>
+
+                    </div>
+                `;
+
+            }).join("")}
+
+        </div>
+    `;
+}
 
 
 // ================================
@@ -37,11 +72,11 @@ photoInput.addEventListener("change", function () {
 
 generateButton.addEventListener("click", async function () {
 
-    if (!selectedImage) {
+    if (!selectedImages.length) {
 
         result.innerHTML = `
             <p class="error-message">
-                Ajoute d'abord une photo de ton article.
+                Ajoute d'abord au moins une photo de ton article.
             </p>
         `;
 
@@ -53,58 +88,68 @@ generateButton.addEventListener("click", async function () {
 
     result.innerHTML = `
         <div class="loading">
+
             <div class="spinner"></div>
-            <p>SellPilot analyse ton article...</p>
+
+            <p>
+                SellPilot analyse tes ${selectedImages.length} photo${selectedImages.length > 1 ? "s" : ""}...
+            </p>
+
         </div>
     `;
 
     try {
 
-        const reader = new FileReader();
+        // Compression des images avant envoi
+        const images = await Promise.all(
+            selectedImages.map(file => compressImage(file))
+        );
 
-        reader.onload = async function () {
 
-            const base64Image = reader.result;
+        const response = await fetch("/api/generate", {
 
-            const response = await fetch("/api/generate", {
+            method: "POST",
 
-                method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+            body: JSON.stringify({
+                images: images
+            })
 
-                body: JSON.stringify({
-                    image: base64Image
-                })
+        });
 
-            });
 
-            const data = await response.json();
+        const data = await response.json();
 
-            if (!response.ok) {
 
-                throw new Error(
-                    data.error || "Erreur lors de la génération"
-                );
+        if (!response.ok) {
 
-            }
+            throw new Error(
+                data.error || "Erreur lors de la génération"
+            );
 
-            displayResult(data.result);
+        }
 
-            generateButton.textContent = "Générer à nouveau";
-            generateButton.disabled = false;
 
-        };
+        displayResult(data.result);
 
-        reader.readAsDataURL(selectedImage);
+        generateButton.textContent =
+            "Générer à nouveau";
+
+        generateButton.disabled = false;
 
     } catch (error) {
+
+        console.error(error);
 
         result.innerHTML = `
             <div class="error-box">
 
-                <strong>Une erreur est survenue</strong>
+                <strong>
+                    Une erreur est survenue
+                </strong>
 
                 <p>
                     ${escapeHTML(error.message)}
@@ -113,10 +158,113 @@ generateButton.addEventListener("click", async function () {
             </div>
         `;
 
-        generateButton.textContent = "Réessayer";
+        generateButton.textContent =
+            "Réessayer";
+
         generateButton.disabled = false;
     }
 });
+
+
+// ================================
+// COMPRESSER UNE IMAGE
+// ================================
+
+function compressImage(file) {
+
+    return new Promise((resolve, reject) => {
+
+        const reader = new FileReader();
+
+
+        reader.onload = function (event) {
+
+            const img = new Image();
+
+
+            img.onload = function () {
+
+                const maxWidth = 1600;
+                const maxHeight = 1600;
+
+                let width = img.width;
+                let height = img.height;
+
+
+                // Réduction proportionnelle
+                if (width > maxWidth || height > maxHeight) {
+
+                    const ratio = Math.min(
+                        maxWidth / width,
+                        maxHeight / height
+                    );
+
+                    width = Math.round(width * ratio);
+                    height = Math.round(height * ratio);
+                }
+
+
+                const canvas =
+                    document.createElement("canvas");
+
+                canvas.width = width;
+                canvas.height = height;
+
+
+                const ctx =
+                    canvas.getContext("2d");
+
+
+                ctx.drawImage(
+                    img,
+                    0,
+                    0,
+                    width,
+                    height
+                );
+
+
+                // JPEG compressé
+                const compressedImage =
+                    canvas.toDataURL(
+                        "image/jpeg",
+                        0.82
+                    );
+
+
+                resolve(compressedImage);
+            };
+
+
+            img.onerror = function () {
+
+                reject(
+                    new Error(
+                        "Impossible de traiter une des images."
+                    )
+                );
+
+            };
+
+
+            img.src = event.target.result;
+        };
+
+
+        reader.onerror = function () {
+
+            reject(
+                new Error(
+                    "Impossible de lire une des images."
+                )
+            );
+
+        };
+
+
+        reader.readAsDataURL(file);
+    });
+}
 
 
 // ================================
@@ -169,17 +317,17 @@ function displayResult(text) {
             "ÉTAT"
         ),
 
-       etat: extractSection(
-    text,
-    "ÉTAT",
-    "DÉFAUTS VISIBLES"
-),
+        etat: extractSection(
+            text,
+            "ÉTAT",
+            "DÉFAUTS VISIBLES"
+        ),
 
-defauts: extractSection(
-    text,
-    "DÉFAUTS VISIBLES",
-    "PRIX CONSEILLÉ"
-),
+        defauts: extractSection(
+            text,
+            "DÉFAUTS VISIBLES",
+            "PRIX CONSEILLÉ"
+        ),
 
         prix: extractSection(
             text,
@@ -302,35 +450,35 @@ defauts: extractSection(
             </div>
 
             <div class="info-card">
-    <span>État</span>
-    <strong>${escapeHTML(currentData.etat)}</strong>
-</div>
+                <span>État</span>
+                <strong>${escapeHTML(currentData.etat)}</strong>
+            </div>
 
-</div>
-
-
-<!-- DÉFAUTS VISIBLES -->
-
-<div class="result-card defect-card">
-
-    <div class="card-header">
-
-        <span>
-            🔎 Défauts visibles
-        </span>
-
-    </div>
-
-    <div class="card-content">
-
-        ${escapeHTML(currentData.defauts)}
-
-    </div>
-
-</div>
+        </div>
 
 
-<!-- PRIX -->
+        <!-- DÉFAUTS VISIBLES -->
+
+        <div class="result-card defect-card">
+
+            <div class="card-header">
+
+                <span>
+                    🔎 Défauts visibles
+                </span>
+
+            </div>
+
+            <div class="card-content">
+
+                ${escapeHTML(currentData.defauts)}
+
+            </div>
+
+        </div>
+
+
+        <!-- PRIX -->
 
         <div class="price-container">
 
@@ -455,7 +603,7 @@ function extractSection(text, start, end) {
 
 
 // ================================
-// RECUPERER TITRE MODIFIE
+// TITRE MODIFIE
 // ================================
 
 function getTitle() {
@@ -470,7 +618,7 @@ function getTitle() {
 
 
 // ================================
-// RECUPERER DESCRIPTION MODIFIEE
+// DESCRIPTION MODIFIEE
 // ================================
 
 function getDescription() {
@@ -565,7 +713,7 @@ function showCopyMessage() {
 
 function newListing() {
 
-    selectedImage = null;
+    selectedImages = [];
     currentData = {};
 
     photoInput.value = "";
@@ -580,7 +728,8 @@ function newListing() {
         "Générer mon annonce";
 
     window.scrollTo({
-        top: document.querySelector(".generator").offsetTop - 80,
+        top:
+            document.querySelector(".generator").offsetTop - 80,
         behavior: "smooth"
     });
 }
@@ -613,11 +762,18 @@ function escapeHTML(text) {
 function escapeAttribute(text) {
 
     return String(text)
+
         .replace(/&/g, "&amp;")
+
         .replace(/"/g, "&quot;")
+
         .replace(/'/g, "&#039;")
+
         .replace(/</g, "&lt;")
+
         .replace(/>/g, "&gt;")
+
         .replace(/\n/g, " ")
+
         .replace(/\r/g, "");
 }
