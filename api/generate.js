@@ -30,7 +30,7 @@ module.exports = async function handler(req, res) {
                             content: [
                                 {
                                     type: "input_text",
-                                    Analyse cette photo comme un assistant spécialisé dans la création d'annonces Vinted.
+                                    'Analyse cette photo comme un assistant spécialisé dans la création d'annonces Vinted.
 
 Ton objectif est de produire une annonce directement utilisable par le vendeur.
 
@@ -78,7 +78,7 @@ PRIX DE MISE EN VENTE
 [Prix en euros légèrement supérieur au prix conseillé afin de laisser une marge de négociation]
 
 CONFIRMATIONS NÉCESSAIRES
-[Uniquement les informations importantes que le vendeur devrait vérifier avant de publier. S'il n'y en a aucune, écrire "Aucune"]
+[Uniquement les informations importantes que le vendeur devrait vérifier avant de publier. S'il n'y en a aucune, écrire "Aucune"]'
                                 },
                                 {
                                     type: "input_image",
