@@ -843,3 +843,22 @@ footer p {
         height: 120px;
     }
 }
+/* ================================
+   MOTS-CLES VINTED
+   ================================ */
+
+.keywords-card {
+    background: #faf9ff;
+    border-color: #e3defe;
+}
+
+.keywords-card .card-header span {
+    color: #6d5dfc;
+}
+
+.keywords-content {
+    color: #4b5563;
+    line-height: 1.7;
+    font-size: 14px;
+    word-break: break-word;
+}
