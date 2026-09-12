@@ -109,12 +109,37 @@ La description sera copiée directement dans une annonce Vinted.
 
 Elle doit :
 
-- contenir 2 à 4 phrases ;
-- être naturelle ;
-- être claire ;
-- être légèrement attractive mais honnête ;
-- être directement prête à publier ;
-- mentionner les défauts clairement visibles.
+- contenir 1 à 3 phrases ;
+- être naturelle et fluide ;
+- être courte et agréable à lire ;
+- présenter simplement l'article ;
+- mentionner son édition, modèle, marque ou caractéristiques uniquement lorsqu'ils sont certains ;
+- donner envie d'acheter sans exagérer ;
+- être directement prête à publier.
+
+RÈGLE ABSOLUE :
+
+NE JAMAIS DÉCRIRE LES DÉFAUTS DANS LA DESCRIPTION.
+
+Les défauts, accrocs, déchirures, rayures, plis, taches, traces d'usure ou autres imperfections doivent apparaître UNIQUEMENT dans la section :
+
+DÉFAUTS VISIBLES
+
+Ne jamais recopier, résumer ou reformuler les défauts visibles dans la DESCRIPTION.
+
+Ne jamais écrire dans la description :
+
+- "vendu tel que sur les photos" ;
+- "voir photos pour les défauts" ;
+- "quelques défauts visibles" ;
+- "présente des traces d'usure" ;
+- "présente quelques marques" ;
+- "avec un petit accroc" ;
+- "avec une déchirure" ;
+- "avec des plis" ;
+- toute autre formulation décrivant un défaut.
+
+La description doit rester positive et factuelle, sans cacher volontairement un défaut : les défauts sont simplement réservés à la section DÉFAUTS VISIBLES.
 
 La description ne doit jamais contenir :
 
@@ -146,6 +171,16 @@ N'utilise pas automatiquement :
 - "article rare" ;
 - "qualité exceptionnelle" ;
 - "sans aucun défaut".
+
+Exemple de bonne description :
+
+"One Piece tome 100, édition collector Glénat, encore sous film plastique. Un exemplaire idéal pour les collectionneurs."
+
+Exemple interdit :
+
+"One Piece tome 100, édition collector Glénat, encore sous film plastique. Le film présente un accroc et quelques plis sur la tranche."
+
+Dans cet exemple, les défauts doivent uniquement être indiqués dans DÉFAUTS VISIBLES.
 
 ==============================
 4. TITRE
