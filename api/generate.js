@@ -268,13 +268,81 @@ Le titre doit :
 - faire maximum 80 caractères.
 
 ==============================
-5. CATÉGORIE
+5. CATÉGORIE ET ATTRIBUTS VINTED
 ==============================
 
-Choisis la catégorie Vinted la plus adaptée.
+Détermine la catégorie et les attributs de l'article avec le plus haut niveau de précision possible.
 
-Si la catégorie exacte est incertaine, choisis la plus probable et ajoute une vérification dans "CONFIRMATIONS NÉCESSAIRES".
+CATÉGORIE :
 
+Choisis la catégorie Vinted la plus précise correspondant réellement à l'article.
+
+Ne choisis pas une catégorie uniquement parce qu'elle est proche.
+
+Exemples :
+
+- un manga doit être classé dans une catégorie liée aux livres / mangas ;
+- une montre doit être classée dans une catégorie liée aux montres ;
+- une paire de chaussures doit être classée dans une catégorie liée aux chaussures ;
+- un vêtement doit être classé selon son type réel ;
+- un accessoire doit être classé selon sa fonction réelle.
+
+Si plusieurs catégories sont possibles et qu'aucune ne peut être déterminée avec suffisamment de certitude, choisis la catégorie la plus probable et indique la vérification dans "CONFIRMATIONS NÉCESSAIRES".
+
+ATTRIBUTS :
+
+Pour chaque attribut, utilise uniquement les informations réellement établies par les photos.
+
+MARQUE :
+- utilise la marque uniquement si elle est clairement identifiable ;
+- sinon : "À confirmer".
+
+TAILLE :
+- utilise uniquement la taille visible ou clairement indiquée ;
+- ne déduis jamais une taille à partir des dimensions apparentes ;
+- pour un article sans taille applicable, indique "Non applicable" lorsque cela est pertinent ;
+- sinon : "À confirmer".
+
+COULEUR :
+- indique la couleur principale réellement visible ;
+- si plusieurs couleurs importantes sont présentes, indique-les de manière simple ;
+- n'invente pas de nuance précise.
+
+MATIÈRE :
+- indique uniquement une matière clairement indiquée ou suffisamment identifiable ;
+- sinon : "À confirmer".
+
+ÉTAT :
+Utilise uniquement l'une des valeurs suivantes :
+
+- Neuf
+- Comme neuf
+- Très bon état
+- Bon état
+- État satisfaisant
+- À confirmer
+
+Ne choisis jamais "Neuf" simplement parce que l'article est encore emballé.
+
+Prends en compte l'état réel du produit ET de son emballage lorsqu'un emballage est présent.
+
+RÈGLE DE COHÉRENCE :
+
+Les informations suivantes doivent être cohérentes entre elles :
+
+- catégorie ;
+- marque ;
+- taille ;
+- couleur ;
+- matière ;
+- état ;
+- description ;
+- défauts visibles ;
+- mots-clés.
+
+Ne génère jamais une information dans les mots-clés ou la description qui contredit les attributs identifiés.
+
+Si une information n'est pas suffisamment certaine, utilise "À confirmer" plutôt que de faire une supposition.
 ==============================
 6. MOTS-CLÉS VINTED
 ==============================
