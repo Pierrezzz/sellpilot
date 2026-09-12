@@ -13,7 +13,7 @@ async function searchMarket(query) {
                 api_key: process.env.TAVILY_API_KEY,
                 query: query,
                 search_depth: "advanced",
-                max_results: 8,
+                max_results: 6,
                 include_answer: false,
                 include_raw_content: false
             })
@@ -281,16 +281,6 @@ N'utilise pas automatiquement :
 - "qualité exceptionnelle" ;
 - "sans aucun défaut".
 
-Exemple de bonne description :
-
-"One Piece tome 100, édition collector Glénat, encore sous film plastique. Un exemplaire idéal pour les collectionneurs."
-
-Exemple interdit :
-
-"One Piece tome 100, édition collector Glénat, encore sous film plastique. Le film présente un accroc et quelques plis sur la tranche."
-
-Dans cet exemple, les défauts doivent uniquement être indiqués dans DÉFAUTS VISIBLES.
-
 ==============================
 4. TITRE
 ==============================
@@ -379,6 +369,7 @@ Les informations suivantes doivent être cohérentes entre elles :
 Ne génère jamais une information dans les mots-clés ou la description qui contredit les attributs identifiés.
 
 Si une information n'est pas suffisamment certaine, utilise "À confirmer" plutôt que de faire une supposition.
+
 ==============================
 6. MOTS-CLÉS VINTED
 ==============================
@@ -421,9 +412,13 @@ Pour le moment, propose une estimation prudente basée sur :
 - les défauts visibles ;
 - la valeur supposée du produit.
 
-Ne prétends pas utiliser des données de marché en temps réel.
-
 Le prix de mise en vente doit être légèrement supérieur au prix conseillé.
+
+IMPORTANT :
+
+Une recherche de marché sera effectuée après ton analyse initiale.
+
+Ne prétends pas avoir utilisé des données de marché dans cette première analyse.
 
 ==============================
 8. CONFIRMATIONS
@@ -454,7 +449,7 @@ TITRE
 [Un titre Vinted de maximum 80 caractères]
 
 DESCRIPTION
-[Une description naturelle de 2 à 4 phrases, directement copiable]
+[Une description naturelle de 1 à 3 phrases, directement copiable]
 
 CATÉGORIE
 [Catégorie Vinted la plus adaptée]
@@ -463,7 +458,7 @@ MARQUE
 [Marque certaine ou "À confirmer"]
 
 TAILLE
-[Taille certaine ou "À confirmer"]
+[Taille certaine, "Non applicable" ou "À confirmer"]
 
 COULEUR
 [Couleur visible]
@@ -488,6 +483,10 @@ PRIX DE MISE EN VENTE
 
 CONFIRMATIONS NÉCESSAIRES
 [Informations importantes à vérifier ou "Aucune"]`;
+
+        // ==========================================
+        // 1. ANALYSE VISUELLE
+        // ==========================================
 
         const response = await fetch(
             "https://api.openai.com/v1/responses",
@@ -558,11 +557,476 @@ CONFIRMATIONS NÉCESSAIRES
 
             ?.join("\n") || "";
 
+        if (!text) {
+
+            return res.status(500).json({
+                error: "No analysis result returned"
+            });
+
+        }
+
+        // ==========================================
+        // 2. EXTRACTION DES INFORMATIONS
+        // ==========================================
+
+        function extractSection(source, start, end) {
+
+            const startIndex =
+                source.indexOf(start);
+
+            if (startIndex === -1) {
+                return "";
+            }
+
+            const contentStart =
+                startIndex + start.length;
+
+            const endIndex =
+                source.indexOf(
+                    end,
+                    contentStart
+                );
+
+            if (endIndex === -1) {
+
+                return source
+                    .slice(contentStart)
+                    .trim();
+
+            }
+
+            return source
+                .slice(
+                    contentStart,
+                    endIndex
+                )
+                .trim();
+        }
+
+        const titre = extractSection(
+            text,
+            "TITRE",
+            "DESCRIPTION"
+        );
+
+        const categorie = extractSection(
+            text,
+            "CATÉGORIE",
+            "MARQUE"
+        );
+
+        const marque = extractSection(
+            text,
+            "MARQUE",
+            "TAILLE"
+        );
+
+        const taille = extractSection(
+            text,
+            "TAILLE",
+            "COULEUR"
+        );
+
+        const etat = extractSection(
+            text,
+            "ÉTAT",
+            "DÉFAUTS VISIBLES"
+        );
+
+        // ==========================================
+        // 3. RECHERCHE DES COMPARABLES
+        // ==========================================
+
+        const searchQueries = [];
+
+        const cleanValue = value => {
+
+            if (!value) {
+                return "";
+            }
+
+            const normalized =
+                value.trim();
+
+            if (
+                normalized === "À confirmer" ||
+                normalized === "Non applicable"
+            ) {
+                return "";
+            }
+
+            return normalized;
+        };
+
+        const cleanTitle =
+            cleanValue(titre);
+
+        const cleanBrand =
+            cleanValue(marque);
+
+        const cleanCategory =
+            cleanValue(categorie);
+
+        const baseQuery = [
+            cleanTitle,
+            cleanBrand,
+            cleanCategory
+        ]
+            .filter(Boolean)
+            .join(" ")
+            .trim();
+
+        if (baseQuery) {
+
+            searchQueries.push(
+                `"${baseQuery}" prix occasion`
+            );
+
+            searchQueries.push(
+                `"${baseQuery}" Vinted`
+            );
+
+            searchQueries.push(
+                `"${baseQuery}" Leboncoin eBay`
+            );
+
+        }
+
+        let marketResults = [];
+
+        try {
+
+            for (const query of searchQueries) {
+
+                const results =
+                    await searchMarket(query);
+
+                marketResults.push(
+                    ...results
+                );
+
+            }
+
+        } catch (marketError) {
+
+            console.error(
+                "Market search error:",
+                marketError.message
+            );
+
+            // Tavily ne doit jamais empêcher
+            // SellPilot de générer une annonce.
+
+            return res.status(200).json({
+                result: text
+            });
+
+        }
+
+        // ==========================================
+        // 4. NETTOYAGE DES COMPARABLES
+        // ==========================================
+
+        const uniqueResults = [];
+
+        const seenUrls =
+            new Set();
+
+        for (const result of marketResults) {
+
+            if (
+                !result ||
+                !result.url ||
+                seenUrls.has(result.url)
+            ) {
+                continue;
+            }
+
+            seenUrls.add(result.url);
+
+            uniqueResults.push({
+
+                title:
+                    result.title || "",
+
+                url:
+                    result.url || "",
+
+                content:
+                    (result.content || "")
+                        .slice(0, 1800)
+
+            });
+
+        }
+
+        const usefulResults =
+            uniqueResults.slice(0, 15);
+
+        // ==========================================
+        // 5. RECALCUL DU PRIX
+        // ==========================================
+
+        if (usefulResults.length > 0) {
+
+            const marketContext =
+                usefulResults
+                    .map(
+                        (result, index) =>
+                            `
+COMPARABLE ${index + 1}
+
+Titre :
+${result.title}
+
+Source :
+${result.url}
+
+Informations trouvées :
+${result.content}
+`
+                    )
+                    .join("\n");
+
+            const pricingPrompt = `Tu es maintenant responsable de l'estimation du prix de vente d'un article d'occasion.
+
+Tu dois améliorer UNIQUEMENT les deux prix de l'annonce existante.
+
+ARTICLE IDENTIFIÉ :
+
+Titre :
+${titre}
+
+Catégorie :
+${categorie}
+
+Marque :
+${marque}
+
+Taille :
+${taille}
+
+État :
+${etat}
+
+RÉSULTATS TROUVÉS SUR LE WEB :
+
+${marketContext}
+
+==============================
+RÈGLES DE COMPARAISON
+==============================
+
+Analyse les résultats avec beaucoup de prudence.
+
+Un résultat trouvé sur le web n'est PAS automatiquement un comparable.
+
+Ignore les résultats qui concernent clairement :
+
+- un produit différent ;
+- un autre modèle ;
+- une autre édition ;
+- une autre référence ;
+- un lot alors que notre article est vendu seul ;
+- un accessoire au lieu du produit ;
+- une taille différente lorsque la taille influence fortement la valeur ;
+- un produit neuf lorsque notre article est d'occasion ;
+- un produit avec des caractéristiques très différentes.
+
+Donne davantage de poids aux résultats qui correspondent au même :
+
+- produit ;
+- modèle ;
+- édition ;
+- référence ;
+- marque.
+
+Les prix affichés en ligne sont des prix demandés et non nécessairement des prix de vente réellement réalisés.
+
+Ne considère donc jamais un prix isolé comme une vérité.
+
+Si plusieurs prix comparables existent :
+
+- identifie la tendance générale ;
+- écarte les valeurs manifestement aberrantes ;
+- tiens compte de l'état de notre article ;
+- tiens compte des défauts visibles ;
+- tiens compte de l'édition ou de la référence ;
+- tiens compte de la rareté uniquement si elle est réellement établie par les comparables.
+
+Si les résultats sont faibles, contradictoires ou peu pertinents :
+
+- ne force pas une estimation précise ;
+- conserve une estimation prudente ;
+- utilise les données disponibles uniquement comme indication.
+
+IMPORTANT :
+
+Ne donne jamais un prix simplement parce qu'il apparaît dans un résultat.
+
+Le prix doit être cohérent avec plusieurs éléments lorsque plusieurs comparables fiables existent.
+
+==============================
+FORMAT DE SORTIE
+==============================
+
+Retourne exactement :
+
+PRIX CONSEILLÉ
+[prix en euros]
+
+PRIX DE MISE EN VENTE
+[prix en euros légèrement supérieur]
+
+Ne retourne aucune autre section.
+Ne retourne aucune explication.
+Ne retourne aucun commentaire.`;
+
+            try {
+
+                const pricingResponse =
+                    await fetch(
+                        "https://api.openai.com/v1/responses",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${process.env.OPENAI_API_KEY}`
+                            },
+
+                            body: JSON.stringify({
+
+                                model: "gpt-5-mini",
+
+                                input: pricingPrompt
+
+                            })
+
+                        }
+                    );
+
+                const pricingData =
+                    await pricingResponse.json();
+
+                if (pricingResponse.ok) {
+
+                    const pricingText =
+                        pricingData.output
+
+                            ?.flatMap(
+                                item =>
+                                    item.content || []
+                            )
+
+                            ?.filter(
+                                item =>
+                                    item.type ===
+                                    "output_text"
+                            )
+
+                            ?.map(
+                                item => item.text
+                            )
+
+                            ?.join("\n") || "";
+
+                    const newRecommendedPrice =
+                        extractSection(
+                            pricingText,
+                            "PRIX CONSEILLÉ",
+                            "PRIX DE MISE EN VENTE"
+                        );
+
+                    const newListingPrice =
+                        extractSection(
+                            pricingText,
+                            "PRIX DE MISE EN VENTE",
+                            "__END__"
+                        );
+
+                    if (
+                        newRecommendedPrice &&
+                        newListingPrice
+                    ) {
+
+                        const pricingStart =
+                            text.indexOf(
+                                "PRIX CONSEILLÉ"
+                            );
+
+                        const confirmationsStart =
+                            text.indexOf(
+                                "CONFIRMATIONS NÉCESSAIRES"
+                            );
+
+                        if (
+                            pricingStart !== -1 &&
+                            confirmationsStart !== -1
+                        ) {
+
+                            const beforePricing =
+                                text.slice(
+                                    0,
+                                    pricingStart
+                                );
+
+                            const confirmations =
+                                text.slice(
+                                    confirmationsStart
+                                );
+
+                            const updatedPricing =
+                                `PRIX CONSEILLÉ
+${newRecommendedPrice}
+
+PRIX DE MISE EN VENTE
+${newListingPrice}`;
+
+                            const updatedText =
+                                beforePricing +
+                                updatedPricing +
+                                "\n\n" +
+                                confirmations;
+
+                            return res.status(200).json({
+                                result: updatedText
+                            });
+
+                        }
+
+                    }
+
+                }
+
+            } catch (pricingError) {
+
+                console.error(
+                    "Pricing analysis error:",
+                    pricingError.message
+                );
+
+            }
+
+        }
+
+        // ==========================================
+        // 6. FALLBACK
+        // ==========================================
+
         return res.status(200).json({
             result: text
         });
 
     } catch (error) {
+
+        console.error(
+            "Generate error:",
+            error
+        );
 
         return res.status(500).json({
             error: error.message
