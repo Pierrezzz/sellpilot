@@ -8,23 +8,57 @@ let currentData = {};
 
 
 // ================================
-// PHOTO
+// PHOTO UPLOAD
 // ================================
 
-photoInput.addEventListener("change", function () {
+if (photoInput) {
 
-    const files = Array.from(this.files);
+    photoInput.addEventListener("change", function (event) {
 
-    if (!files.length) {
-        return;
-    }
+        const files = Array.from(
+            event.target.files || []
+        );
 
-    selectedImages = files;
+        if (!files.length) {
+            return;
+        }
 
-    displayImagePreviews();
+        // Garder uniquement les images
+        const imageFiles = files.filter(file =>
+            file.type &&
+            file.type.startsWith("image/")
+        );
 
-    result.innerHTML = "";
-});
+        if (!imageFiles.length) {
+
+            if (result) {
+                result.innerHTML = `
+                    <div class="error-box">
+                        <strong>Aucune image valide</strong>
+                        <p>
+                            Sélectionne au moins une photo au format JPG,
+                            PNG, HEIC ou WEBP.
+                        </p>
+                    </div>
+                `;
+            }
+
+            return;
+        }
+
+        // Maximum 10 photos
+        selectedImages =
+            imageFiles.slice(0, 10);
+
+        displayImagePreviews();
+
+        if (result) {
+            result.innerHTML = "";
+        }
+
+    });
+
+}
 
 
 // ================================
@@ -33,40 +67,109 @@ photoInput.addEventListener("change", function () {
 
 function displayImagePreviews() {
 
-    preview.innerHTML = `
-        <div class="preview-header">
-            <span>
-                ${selectedImages.length}
-                photo${selectedImages.length > 1 ? "s" : ""}
-                sélectionnée${selectedImages.length > 1 ? "s" : ""}
-            </span>
-        </div>
+    if (!preview) {
+        return;
+    }
 
-        <div class="preview-grid">
+    preview.innerHTML = "";
 
-            ${selectedImages.map((file, index) => {
+    // Header
+    const header =
+        document.createElement("div");
 
-                const imageURL = URL.createObjectURL(file);
+    header.className =
+        "preview-header";
 
-                return `
-                    <div class="preview-item">
+    const count =
+        selectedImages.length;
 
-                        <img
-                            src="${imageURL}"
-                            alt="Photo ${index + 1}"
-                        >
-
-                        <span>
-                            Photo ${index + 1}
-                        </span>
-
-                    </div>
-                `;
-
-            }).join("")}
-
-        </div>
+    header.innerHTML = `
+        <span>
+            ${count}
+            photo${count > 1 ? "s" : ""}
+            sélectionnée${count > 1 ? "s" : ""}
+        </span>
     `;
+
+    preview.appendChild(header);
+
+
+    // Grille
+    const grid =
+        document.createElement("div");
+
+    grid.className =
+        "preview-grid";
+
+
+    selectedImages.forEach(
+        (file, index) => {
+
+            const item =
+                document.createElement("div");
+
+            item.className =
+                "preview-item";
+
+
+            const image =
+                document.createElement("img");
+
+            image.alt =
+                `Photo ${index + 1}`;
+
+            image.loading = "lazy";
+
+            image.style.width = "100%";
+            image.style.height = "100%";
+            image.style.objectFit = "cover";
+
+
+            const imageURL =
+                URL.createObjectURL(file);
+
+            image.src =
+                imageURL;
+
+
+            image.onload = function () {
+
+                URL.revokeObjectURL(
+                    imageURL
+                );
+
+            };
+
+
+            image.onerror = function () {
+
+                URL.revokeObjectURL(
+                    imageURL
+                );
+
+                image.alt =
+                    "Impossible d'afficher cette image";
+
+            };
+
+
+            const label =
+                document.createElement("span");
+
+            label.textContent =
+                `Photo ${index + 1}`;
+
+
+            item.appendChild(image);
+            item.appendChild(label);
+
+            grid.appendChild(item);
+
+        }
+    );
+
+
+    preview.appendChild(grid);
 }
 
 
@@ -74,97 +177,149 @@ function displayImagePreviews() {
 // GENERATION
 // ================================
 
-generateButton.addEventListener("click", async function () {
+if (generateButton) {
 
-    if (!selectedImages.length) {
+    generateButton.addEventListener(
+        "click",
+        async function () {
 
-        result.innerHTML = `
-            <p class="error-message">
-                Ajoute d'abord au moins une photo de ton article.
-            </p>
-        `;
+            if (!selectedImages.length) {
 
-        return;
-    }
+                result.innerHTML = `
+                    <p class="error-message">
+                        Ajoute d'abord au moins une photo de ton article.
+                    </p>
+                `;
 
-    generateButton.disabled = true;
-    generateButton.textContent = "Analyse en cours...";
+                return;
+            }
 
-    result.innerHTML = `
-        <div class="loading">
 
-            <div class="spinner"></div>
+            generateButton.disabled = true;
 
-            <p>
-                SellPilot analyse tes
-                ${selectedImages.length}
-                photo${selectedImages.length > 1 ? "s" : ""}...
-            </p>
+            generateButton.textContent =
+                "Analyse en cours...";
 
-        </div>
-    `;
 
-    try {
+            result.innerHTML = `
+                <div class="loading">
 
-        const images = await Promise.all(
-            selectedImages.map(file => compressImage(file))
-        );
+                    <div class="spinner"></div>
 
-        const response = await fetch("/api/generate", {
+                    <p>
+                        SellPilot analyse tes
+                        ${selectedImages.length}
+                        photo${selectedImages.length > 1 ? "s" : ""}...
+                    </p>
 
-            method: "POST",
+                </div>
+            `;
 
-            headers: {
-                "Content-Type": "application/json"
-            },
 
-            body: JSON.stringify({
-                images: images
-            })
+            try {
 
-        });
+                // Compression des photos
+                const images =
+                    await Promise.all(
+                        selectedImages.map(
+                            file =>
+                                compressImage(file)
+                        )
+                    );
 
-        const data = await response.json();
 
-        if (!response.ok) {
+                // Envoi vers l'API
+                const response =
+                    await fetch(
+                        "/api/generate",
+                        {
+                            method: "POST",
 
-            throw new Error(
-                data.error || "Erreur lors de la génération"
-            );
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                images: images
+                            })
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error ||
+                        "Erreur lors de la génération"
+                    );
+
+                }
+
+
+                if (!data.result) {
+
+                    throw new Error(
+                        "SellPilot n'a reçu aucun résultat."
+                    );
+
+                }
+
+
+                displayResult(
+                    data.result
+                );
+
+
+                generateButton.textContent =
+                    "Générer à nouveau";
+
+                generateButton.disabled =
+                    false;
+
+
+            } catch (error) {
+
+                console.error(
+                    "SellPilot error:",
+                    error
+                );
+
+
+                result.innerHTML = `
+                    <div class="error-box">
+
+                        <strong>
+                            Une erreur est survenue
+                        </strong>
+
+                        <p>
+                            ${escapeHTML(
+                                error.message ||
+                                "Erreur inconnue"
+                            )}
+                        </p>
+
+                    </div>
+                `;
+
+
+                generateButton.textContent =
+                    "Réessayer";
+
+                generateButton.disabled =
+                    false;
+
+            }
 
         }
+    );
 
-        displayResult(data.result);
-
-        generateButton.textContent =
-            "Générer à nouveau";
-
-        generateButton.disabled = false;
-
-    } catch (error) {
-
-        console.error(error);
-
-        result.innerHTML = `
-            <div class="error-box">
-
-                <strong>
-                    Une erreur est survenue
-                </strong>
-
-                <p>
-                    ${escapeHTML(error.message)}
-                </p>
-
-            </div>
-        `;
-
-        generateButton.textContent =
-            "Réessayer";
-
-        generateButton.disabled = false;
-    }
-});
+}
 
 
 // ================================
@@ -173,84 +328,197 @@ generateButton.addEventListener("click", async function () {
 
 function compressImage(file) {
 
-    return new Promise((resolve, reject) => {
+    return new Promise(
+        (resolve, reject) => {
 
-        const reader = new FileReader();
-
-        reader.onload = function (event) {
-
-            const img = new Image();
-
-            img.onload = function () {
-
-                const maxWidth = 1600;
-                const maxHeight = 1600;
-
-                let width = img.width;
-                let height = img.height;
-
-                if (width > maxWidth || height > maxHeight) {
-
-                    const ratio = Math.min(
-                        maxWidth / width,
-                        maxHeight / height
-                    );
-
-                    width = Math.round(width * ratio);
-                    height = Math.round(height * ratio);
-                }
-
-                const canvas =
-                    document.createElement("canvas");
-
-                canvas.width = width;
-                canvas.height = height;
-
-                const ctx =
-                    canvas.getContext("2d");
-
-                ctx.drawImage(
-                    img,
-                    0,
-                    0,
-                    width,
-                    height
-                );
-
-                const compressedImage =
-                    canvas.toDataURL(
-                        "image/jpeg",
-                        0.82
-                    );
-
-                resolve(compressedImage);
-            };
-
-            img.onerror = function () {
+            if (!file) {
 
                 reject(
                     new Error(
-                        "Impossible de traiter une des images."
+                        "Fichier image invalide."
                     )
                 );
 
-            };
+                return;
+            }
 
-            img.src = event.target.result;
-        };
 
-        reader.onerror = function () {
+            const reader =
+                new FileReader();
 
-            reject(
-                new Error(
-                    "Impossible de lire une des images."
-                )
+
+            reader.onload =
+                function (event) {
+
+                    const img =
+                        new Image();
+
+
+                    img.onload =
+                        function () {
+
+                            const maxWidth =
+                                1600;
+
+                            const maxHeight =
+                                1600;
+
+
+                            let width =
+                                img.naturalWidth ||
+                                img.width;
+
+                            let height =
+                                img.naturalHeight ||
+                                img.height;
+
+
+                            if (
+                                !width ||
+                                !height
+                            ) {
+
+                                reject(
+                                    new Error(
+                                        "Dimensions d'image invalides."
+                                    )
+                                );
+
+                                return;
+                            }
+
+
+                            if (
+                                width > maxWidth ||
+                                height > maxHeight
+                            ) {
+
+                                const ratio =
+                                    Math.min(
+                                        maxWidth / width,
+                                        maxHeight / height
+                                    );
+
+
+                                width =
+                                    Math.round(
+                                        width * ratio
+                                    );
+
+                                height =
+                                    Math.round(
+                                        height * ratio
+                                    );
+
+                            }
+
+
+                            const canvas =
+                                document.createElement(
+                                    "canvas"
+                                );
+
+
+                            canvas.width =
+                                width;
+
+                            canvas.height =
+                                height;
+
+
+                            const ctx =
+                                canvas.getContext(
+                                    "2d"
+                                );
+
+
+                            if (!ctx) {
+
+                                reject(
+                                    new Error(
+                                        "Impossible de traiter l'image."
+                                    )
+                                );
+
+                                return;
+                            }
+
+
+                            ctx.drawImage(
+                                img,
+                                0,
+                                0,
+                                width,
+                                height
+                            );
+
+
+                            const compressedImage =
+                                canvas.toDataURL(
+                                    "image/jpeg",
+                                    0.82
+                                );
+
+
+                            if (
+                                !compressedImage ||
+                                compressedImage ===
+                                "data:,"
+                            ) {
+
+                                reject(
+                                    new Error(
+                                        "Impossible de compresser l'image."
+                                    )
+                                );
+
+                                return;
+                            }
+
+
+                            resolve(
+                                compressedImage
+                            );
+
+                        };
+
+
+                    img.onerror =
+                        function () {
+
+                            reject(
+                                new Error(
+                                    "Impossible de traiter une des images."
+                                )
+                            );
+
+                        };
+
+
+                    img.src =
+                        event.target.result;
+
+                };
+
+
+            reader.onerror =
+                function () {
+
+                    reject(
+                        new Error(
+                            "Impossible de lire une des images."
+                        )
+                    );
+
+                };
+
+
+            reader.readAsDataURL(
+                file
             );
 
-        };
-
-        reader.readAsDataURL(file);
-    });
+        }
+    );
 }
 
 
@@ -339,6 +607,7 @@ function displayResult(text) {
             "CONFIRMATIONS NÉCESSAIRES",
             null
         )
+
     };
 
 
@@ -381,7 +650,9 @@ function displayResult(text) {
             <input
                 id="editable-title"
                 class="editable-title"
-                value="${escapeAttribute(currentData.titre)}"
+                value="${escapeAttribute(
+                    currentData.titre
+                )}"
             />
 
         </div>
@@ -408,7 +679,9 @@ function displayResult(text) {
             <textarea
                 id="editable-description"
                 class="editable-description"
-            >${escapeHTML(currentData.description)}</textarea>
+            >${escapeHTML(
+                currentData.description
+            )}</textarea>
 
         </div>
 
@@ -419,32 +692,56 @@ function displayResult(text) {
 
             <div class="info-card">
                 <span>Catégorie</span>
-                <strong>${escapeHTML(currentData.categorie)}</strong>
+                <strong>
+                    ${escapeHTML(
+                        currentData.categorie
+                    )}
+                </strong>
             </div>
 
             <div class="info-card">
                 <span>Marque</span>
-                <strong>${escapeHTML(currentData.marque)}</strong>
+                <strong>
+                    ${escapeHTML(
+                        currentData.marque
+                    )}
+                </strong>
             </div>
 
             <div class="info-card">
                 <span>Taille</span>
-                <strong>${escapeHTML(currentData.taille)}</strong>
+                <strong>
+                    ${escapeHTML(
+                        currentData.taille
+                    )}
+                </strong>
             </div>
 
             <div class="info-card">
                 <span>Couleur</span>
-                <strong>${escapeHTML(currentData.couleur)}</strong>
+                <strong>
+                    ${escapeHTML(
+                        currentData.couleur
+                    )}
+                </strong>
             </div>
 
             <div class="info-card">
                 <span>Matière</span>
-                <strong>${escapeHTML(currentData.matiere)}</strong>
+                <strong>
+                    ${escapeHTML(
+                        currentData.matiere
+                    )}
+                </strong>
             </div>
 
             <div class="info-card">
                 <span>État</span>
-                <strong>${escapeHTML(currentData.etat)}</strong>
+                <strong>
+                    ${escapeHTML(
+                        currentData.etat
+                    )}
+                </strong>
             </div>
 
         </div>
@@ -464,7 +761,9 @@ function displayResult(text) {
 
             <div class="card-content">
 
-                ${escapeHTML(currentData.defauts)}
+                ${escapeHTML(
+                    currentData.defauts
+                )}
 
             </div>
 
@@ -491,7 +790,9 @@ function displayResult(text) {
 
             <div class="card-content keywords-content">
 
-                ${escapeHTML(currentData.motsCles)}
+                ${escapeHTML(
+                    currentData.motsCles
+                )}
 
             </div>
 
@@ -509,7 +810,9 @@ function displayResult(text) {
                 </span>
 
                 <strong>
-                    ${escapeHTML(currentData.prix)}
+                    ${escapeHTML(
+                        currentData.prix
+                    )}
                 </strong>
 
             </div>
@@ -521,7 +824,9 @@ function displayResult(text) {
                 </span>
 
                 <strong>
-                    ${escapeHTML(currentData.prixVente)}
+                    ${escapeHTML(
+                        currentData.prixVente
+                    )}
                 </strong>
 
             </div>
@@ -543,7 +848,9 @@ function displayResult(text) {
 
             <div class="card-content">
 
-                ${escapeHTML(currentData.confirmations)}
+                ${escapeHTML(
+                    currentData.confirmations
+                )}
 
             </div>
 
@@ -569,6 +876,7 @@ function displayResult(text) {
             </button>
 
         </div>
+
     `;
 }
 
@@ -577,38 +885,60 @@ function displayResult(text) {
 // EXTRACTION DES SECTIONS
 // ================================
 
-function extractSection(text, start, end) {
+function extractSection(
+    text,
+    start,
+    end
+) {
 
     const escapedStart =
-        start.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        start.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            "\\$&"
+        );
+
 
     if (end) {
 
         const escapedEnd =
-            end.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            end.replace(
+                /[.*+?^${}()|[\]\\]/g,
+                "\\$&"
+            );
 
-        const regex = new RegExp(
-            escapedStart +
-            "\\s*([\\s\\S]*?)(?=" +
-            escapedEnd +
-            ")",
-            "i"
-        );
 
-        const match = text.match(regex);
+        const regex =
+            new RegExp(
+                escapedStart +
+                "\\s*([\\s\\S]*?)(?=" +
+                escapedEnd +
+                ")",
+                "i"
+            );
+
+
+        const match =
+            text.match(regex);
+
 
         return match
             ? match[1].trim()
             : "À confirmer";
+
     }
 
-    const regex = new RegExp(
-        escapedStart +
-        "\\s*([\\s\\S]*)",
-        "i"
-    );
 
-    const match = text.match(regex);
+    const regex =
+        new RegExp(
+            escapedStart +
+            "\\s*([\\s\\S]*)",
+            "i"
+        );
+
+
+    const match =
+        text.match(regex);
+
 
     return match
         ? match[1].trim()
@@ -623,7 +953,9 @@ function extractSection(text, start, end) {
 function getTitle() {
 
     const element =
-        document.getElementById("editable-title");
+        document.getElementById(
+            "editable-title"
+        );
 
     return element
         ? element.value.trim()
@@ -638,7 +970,9 @@ function getTitle() {
 function getDescription() {
 
     const element =
-        document.getElementById("editable-description");
+        document.getElementById(
+            "editable-description"
+        );
 
     return element
         ? element.value.trim()
@@ -655,9 +989,12 @@ function getKeywords() {
     return currentData.motsCles || "";
 }
 
+
 function copyKeywords() {
 
-    copyText(getKeywords());
+    copyText(
+        getKeywords()
+    );
 }
 
 
@@ -669,7 +1006,9 @@ async function copyText(text) {
 
     try {
 
-        await navigator.clipboard.writeText(text);
+        await navigator.clipboard.writeText(
+            text
+        );
 
         showCopyMessage();
 
@@ -690,10 +1029,12 @@ async function copyText(text) {
 
 async function copyAll() {
 
-    const title = getTitle();
+    const title =
+        getTitle();
 
     const description =
         getDescription();
+
 
     const fullText = `
 
@@ -703,7 +1044,10 @@ ${description}
 
 `.trim();
 
-    await copyText(fullText);
+
+    await copyText(
+        fullText
+    );
 }
 
 
@@ -714,21 +1058,32 @@ ${description}
 function showCopyMessage() {
 
     const message =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
+
 
     message.className =
         "copy-message";
 
+
     message.textContent =
         "✓ Copié !";
 
-    document.body.appendChild(message);
 
-    setTimeout(() => {
+    document.body.appendChild(
+        message
+    );
 
-        message.remove();
 
-    }, 1800);
+    setTimeout(
+        () => {
+
+            message.remove();
+
+        },
+        1800
+    );
 }
 
 
@@ -739,26 +1094,56 @@ function showCopyMessage() {
 function newListing() {
 
     selectedImages = [];
+
     currentData = {};
 
-    photoInput.value = "";
 
-    preview.innerHTML = "";
+    if (photoInput) {
+        photoInput.value = "";
+    }
 
-    result.innerHTML = "";
+    if (preview) {
+        preview.innerHTML = "";
+    }
 
-    generateButton.disabled = false;
+    if (result) {
+        result.innerHTML = "";
+    }
 
-    generateButton.textContent =
-        "Générer mon annonce";
 
-    window.scrollTo({
-        top:
-            document.querySelector(".generator").offsetTop - 80,
-        behavior: "smooth"
-    });
+    if (generateButton) {
+
+        generateButton.disabled =
+            false;
+
+        generateButton.textContent =
+            "Générer mon annonce";
+
+    }
+
+
+    const generator =
+        document.querySelector(
+            ".generator"
+        );
+
+
+    if (generator) {
+
+        window.scrollTo({
+
+            top:
+                generator.offsetTop - 80,
+
+            behavior:
+                "smooth"
+
+        });
+
+    }
+
 }
-
+ 
 
 // ================================
 // SECURITE HTML
@@ -768,15 +1153,31 @@ function escapeHTML(text) {
 
     return String(text)
 
-        .replace(/&/g, "&amp;")
+        .replace(
+            /&/g,
+            "&amp;"
+        )
 
-        .replace(/</g, "&lt;")
+        .replace(
+            /</g,
+            "&lt;"
+        )
 
-        .replace(/>/g, "&gt;")
+        .replace(
+            />/g,
+            "&gt;"
+        )
 
-        .replace(/"/g, "&quot;")
+        .replace(
+            /"/g,
+            "&quot;"
+        )
 
-        .replace(/'/g, "&#039;");
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
 }
 
 
@@ -788,17 +1189,39 @@ function escapeAttribute(text) {
 
     return String(text)
 
-        .replace(/&/g, "&amp;")
+        .replace(
+            /&/g,
+            "&amp;"
+        )
 
-        .replace(/"/g, "&quot;")
+        .replace(
+            /"/g,
+            "&quot;"
+        )
 
-        .replace(/'/g, "&#039;")
+        .replace(
+            /'/g,
+            "&#039;"
+        )
 
-        .replace(/</g, "&lt;")
+        .replace(
+            /</g,
+            "&lt;"
+        )
 
-        .replace(/>/g, "&gt;")
+        .replace(
+            />/g,
+            "&gt;"
+        )
 
-        .replace(/\n/g, " ")
+        .replace(
+            /\n/g,
+            " "
+        )
 
-        .replace(/\r/g, "");
+        .replace(
+            /\r/g,
+            ""
+        );
+
 }
