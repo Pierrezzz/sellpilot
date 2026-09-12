@@ -613,12 +613,11 @@ function escapeHTML(text) {
 function escapeAttribute(text) {
 
     return String(text)
-
-        .replace(/\\/g, "\\\\")
-
-        .replace(/'/g, "\\'")
-
-        .replace(/\n/g, "\\n")
-
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\n/g, " ")
         .replace(/\r/g, "");
 }
