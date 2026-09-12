@@ -126,7 +126,7 @@ module.exports =
             // PROMPT PRINCIPAL
             // ==========================================
 
-            const prompt = `Tu es un expert de la création d'annonces Vinted et de l'analyse visuelle de produits.
+            const prompt = [ Tu es un expert de la création d'annonces Vinted et de l'analyse visuelle de produits.
 
 Toutes les images représentent le MÊME article.
 
@@ -439,7 +439,8 @@ PRIX DE MISE EN VENTE
 [Prix en euros]
 
 CONFIRMATIONS NÉCESSAIRES
-[Informations à vérifier ou "Aucune"]`;
+'[Informations à vérifier ou "Aucune"]'
+].join("\n");
 
 
             // ==========================================
