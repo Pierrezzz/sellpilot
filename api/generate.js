@@ -8,11 +8,9 @@ module.exports = async function handler(req, res) {
 
     }
 
-
     try {
 
         const { images } = req.body;
-
 
         if (
             !images ||
@@ -26,8 +24,6 @@ module.exports = async function handler(req, res) {
 
         }
 
-
-        // Limite de sécurité
         if (images.length > 10) {
 
             return res.status(400).json({
@@ -36,156 +32,313 @@ module.exports = async function handler(req, res) {
 
         }
 
+        const prompt = `Tu es un expert de la création d'annonces Vinted et de l'inspection visuelle de produits.
 
-        const prompt = `Analyse ces photos comme un assistant spécialisé dans la création d'annonces Vinted.
+Toutes les images envoyées représentent le MÊME article.
 
-IMPORTANT :
-Toutes les photos représentent le MÊME article.
+Ton travail consiste à analyser attentivement toutes les photos, puis à générer une annonce Vinted honnête, précise, naturelle et directement utilisable.
 
-Ton objectif est de produire une annonce directement utilisable par le vendeur, tout en réalisant une inspection visuelle précise de l'article.
+==============================
+RÈGLE ABSOLUE : NE RIEN INVENTER
+==============================
 
-RÈGLES IMPORTANTES :
+Tu dois distinguer clairement :
 
+1. Ce qui est réellement visible sur les photos.
+2. Ce qui est probable mais impossible à confirmer.
+3. Ce qui est totalement inconnu.
+
+Ne transforme jamais une supposition en certitude.
+
+Si une information n'est pas clairement visible, lisible ou déductible avec suffisamment de fiabilité, écris :
+
+"À confirmer"
+
+Ne jamais inventer :
+
+- une marque ;
+- un modèle ;
+- une référence ;
+- une taille ;
+- une matière ;
+- une composition ;
+- une couleur précise ;
+- une technologie ;
+- une origine ;
+- une date d'achat ;
+- un prix neuf ;
+- une caractéristique technique ;
+- une certification ;
+- une authenticité.
+
+Si un logo ressemble à une marque connue mais que ce n'est pas parfaitement identifiable, écris "À confirmer".
+
+==============================
 1. ANALYSE DE TOUTES LES PHOTOS
+==============================
 
-- Analyse toutes les photos avant de prendre une décision.
-- Utilise les différentes photos pour compléter les informations visibles.
-- Une photo peut montrer un détail qui n'est pas visible sur les autres.
-- Ne considère jamais une information comme certaine si elle n'est pas réellement visible.
-- Ne jamais inventer une information.
-- Si une information n'est pas visible ou reste incertaine, écris "À confirmer".
+Analyse toutes les photos avant de rédiger le résultat.
 
-2. DÉTECTION DES DÉFAUTS
+Utilise les photos pour vérifier :
+
+- la vue générale de l'article ;
+- les étiquettes ;
+- les logos ;
+- les tailles ;
+- les coutures ;
+- les semelles ou parties inférieures ;
+- les fermetures ;
+- les détails de fabrication ;
+- les éventuels accessoires ;
+- les zones usées ou endommagées.
+
+Une information visible sur une seule photo peut être utilisée si elle est suffisamment nette.
+
+Ne considère pas une partie cachée, floue ou non photographiée comme intacte.
+
+==============================
+2. IDENTIFICATION DU PRODUIT
+==============================
+
+Identifie le produit uniquement avec les éléments réellement visibles.
+
+Pour la marque :
+
+- indique la marque uniquement si elle est clairement identifiable ;
+- sinon écris "À confirmer".
+
+Pour le modèle :
+
+- indique le modèle uniquement s'il est lisible ou reconnaissable avec un niveau de certitude élevé ;
+- sinon ne l'invente pas ;
+- si nécessaire, utilise un titre générique adapté.
+
+Pour la taille :
+
+- utilise uniquement une taille visible sur une étiquette ou clairement identifiable ;
+- sinon écris "À confirmer".
+
+Pour la matière :
+
+- indique uniquement une matière explicitement indiquée ou très évidente visuellement ;
+- ne déduis jamais une composition exacte à partir de l'apparence seule ;
+- sinon écris "À confirmer".
+
+==============================
+3. COULEUR
+==============================
+
+Décris la couleur réellement visible.
+
+Si plusieurs couleurs sont présentes, indique les principales.
+
+N'invente pas une nuance précise si la lumière ou la qualité de la photo ne le permet pas.
+
+==============================
+4. DÉTECTION DES DÉFAUTS
+==============================
 
 Inspecte attentivement toutes les photos à la recherche de :
 
-- taches
-- rayures
-- trous
-- déchirures
-- accrocs
-- coutures abîmées
-- décolorations
-- marques d'usure
-- bouloches
-- fissures
-- parties manquantes
-- déformations
-- traces ou dommages visibles
+- taches ;
+- rayures ;
+- trous ;
+- déchirures ;
+- accrocs ;
+- coutures abîmées ;
+- décolorations ;
+- marques d'usure ;
+- bouloches ;
+- fissures ;
+- parties manquantes ;
+- déformations ;
+- traces ;
+- salissures ;
+- dommages visibles ;
+- accessoires absents ou incomplets.
 
 Pour chaque défaut réellement visible :
 
-- indique précisément où il se trouve
-- décris brièvement son importance
-- ne l'exagère jamais
-- ne le mentionne qu'une seule fois même s'il apparaît sur plusieurs photos
+- indique sa localisation ;
+- décris brièvement le défaut ;
+- précise s'il semble léger ou important ;
+- ne l'exagère pas ;
+- ne le répète pas plusieurs fois.
 
-Si aucun défaut n'est clairement visible sur les parties correctement visibles de l'article, écris :
+Exemple :
+
+"- Légère trace d'usure visible sur le bord inférieur droit."
+
+Si aucun défaut n'est clairement visible sur les zones correctement photographiées, écris exactement :
 
 "Aucun défaut visible sur les photos."
 
-IMPORTANT :
-L'absence de défaut visible ne signifie pas que l'article est sans défaut.
+Attention :
 
-Ne dis jamais "aucun défaut" si une partie importante de l'article est cachée, floue ou non visible.
+L'absence de défaut visible ne signifie pas que l'article est parfaitement neuf.
 
-3. ÉTAT
+Si une zone importante est cachée, floue ou absente des photos, indique-le dans les confirmations nécessaires.
 
-Évalue l'état uniquement à partir de ce qui est réellement visible :
+==============================
+5. ÉTAT GÉNÉRAL
+==============================
 
-- Neuf
-- Comme neuf
-- Très bon état
-- Bon état
-- État satisfaisant
-- À confirmer
+Évalue l'état uniquement à partir des éléments visibles.
 
-Si certaines parties importantes ne sont pas visibles et empêchent une évaluation fiable, utilise "À confirmer".
+Utilise l'une des catégories suivantes :
 
-4. INFORMATIONS PRODUIT
+- Neuf ;
+- Comme neuf ;
+- Très bon état ;
+- Bon état ;
+- État satisfaisant ;
+- À confirmer.
 
-- Ne jamais inventer une marque.
-- Ne jamais inventer une taille.
-- Ne jamais inventer une matière.
-- Ne jamais inventer un modèle.
-- Ne jamais inventer une caractéristique.
-- Si une information n'est pas clairement visible, écris "À confirmer".
+Consignes :
 
-5. ANNONCE
+- "Neuf" uniquement si l'article semble réellement neuf et que les photos le permettent ;
+- "Comme neuf" si l'article présente très peu ou aucune trace d'utilisation visible ;
+- "Très bon état" si l'article est bien conservé avec seulement de légères traces éventuelles ;
+- "Bon état" si des signes d'utilisation sont visibles mais que l'article reste en état correct ;
+- "État satisfaisant" si plusieurs signes d'usure ou défauts sont visibles ;
+- "À confirmer" si les photos ne permettent pas une évaluation fiable.
 
-Le titre doit être :
+Ne choisis jamais un état supérieur uniquement parce que l'article semble joli sur une photo.
 
-- naturel
-- attractif
-- adapté à Vinted
-- maximum 80 caractères
+==============================
+6. TITRE VINTED
+==============================
+
+Le titre doit :
+
+- être naturel ;
+- être clair ;
+- être adapté à Vinted ;
+- contenir les informations réellement connues ;
+- éviter les mots-clés inutiles ;
+- ne pas inventer de marque ou de modèle ;
+- faire maximum 80 caractères.
+
+Si la marque est inconnue, utilise un titre générique précis.
+
+==============================
+7. DESCRIPTION
+==============================
 
 La description doit :
 
-- faire 2 à 4 phrases
-- être naturelle
-- être honnête
-- mentionner les défauts visibles lorsqu'il y en a
-- ne pas prétendre que l'article est parfait si ce n'est pas vérifiable
+- contenir 2 à 4 phrases ;
+- être naturelle ;
+- être honnête ;
+- présenter l'article simplement ;
+- mentionner les informations importantes réellement connues ;
+- mentionner les défauts visibles ;
+- ne pas promettre quelque chose qui n'est pas vérifiable ;
+- ne pas utiliser un ton exagérément commercial.
 
-6. PRIX
+Ne pas écrire automatiquement :
 
-Propose un prix réaliste pour une vente entre particuliers sur Vinted.
+- "excellent état" ;
+- "comme neuf" ;
+- "qualité exceptionnelle" ;
+- "article rare" ;
+- "authentique" ;
+- "jamais porté" ;
 
-Le prix doit tenir compte :
+sauf si cela est réellement confirmé par les photos ou par les informations fournies.
 
-- de la catégorie
-- de l'état visible
-- de la marque si elle est identifiable
-- des défauts visibles
-- de la valeur probable du produit
+==============================
+8. CATÉGORIE VINTED
+==============================
 
-Le prix de mise en vente doit être légèrement supérieur au prix conseillé afin de laisser une marge de négociation.
+Choisis la catégorie Vinted la plus adaptée à partir de ce qui est visible.
 
-7. CONFIRMATIONS
+Si plusieurs catégories sont possibles et qu'aucune ne peut être privilégiée avec certitude, choisis la plus probable et indique la nécessité de vérifier.
 
-Indique uniquement les informations importantes que le vendeur devrait vérifier avant de publier l'annonce.
+==============================
+9. PRIX
+==============================
 
-Ne répète pas inutilement les informations déjà certaines.
+Pour le moment, propose seulement une estimation prudente basée sur :
 
-Retourne exactement le format suivant :
+- le type d'article ;
+- la marque si elle est identifiable ;
+- l'état visible ;
+- les défauts visibles ;
+- la demande probable ;
+- la valeur supposée du produit.
+
+Ne prétends pas disposer de données de marché en temps réel.
+
+Si le produit est générique, inconnu ou difficile à identifier, donne une estimation prudente et ajoute une confirmation nécessaire.
+
+Le prix conseillé doit être exprimé en euros.
+
+Le prix de mise en vente doit être légèrement supérieur afin de laisser une marge de négociation.
+
+==============================
+10. CONFIRMATIONS NÉCESSAIRES
+==============================
+
+Indique uniquement les informations importantes à vérifier avant publication.
+
+Exemples :
+
+- taille à confirmer ;
+- matière à confirmer ;
+- modèle exact à confirmer ;
+- présence d'une étiquette ;
+- état d'une zone non photographiée ;
+- authenticité à vérifier si nécessaire ;
+- accessoire éventuellement manquant.
+
+Ne répète pas les informations déjà certaines.
+
+Si aucune vérification importante n'est nécessaire, écris :
+
+"Aucune"
+
+==============================
+FORMAT OBLIGATOIRE
+==============================
+
+Retourne exactement les sections suivantes, dans cet ordre :
 
 TITRE
-[Un titre Vinted attractif de maximum 80 caractères]
+[Un titre Vinted de maximum 80 caractères]
 
 DESCRIPTION
-[Une description naturelle de 2 à 4 phrases, prête à copier-coller sur Vinted]
+[Une description naturelle de 2 à 4 phrases]
 
 CATÉGORIE
 [Catégorie Vinted la plus adaptée]
 
 MARQUE
-[Marque ou "À confirmer"]
+[Marque clairement identifiable ou "À confirmer"]
 
 TAILLE
-[Taille ou "À confirmer"]
+[Taille visible ou "À confirmer"]
 
 COULEUR
 [Couleur réellement visible]
 
 MATIÈRE
-[Matière ou "À confirmer"]
+[Matière certaine ou "À confirmer"]
 
 ÉTAT
-[État apparent]
+[Une des catégories d'état autorisées]
 
 DÉFAUTS VISIBLES
-[Liste des défauts réellement visibles ou "Aucun défaut visible sur les photos."]
+[Liste précise des défauts visibles ou "Aucun défaut visible sur les photos."]
 
 PRIX CONSEILLÉ
-[Prix en euros]
+[Prix prudent en euros]
 
 PRIX DE MISE EN VENTE
 [Prix en euros légèrement supérieur au prix conseillé]
 
 CONFIRMATIONS NÉCESSAIRES
-[Uniquement les informations importantes que le vendeur devrait vérifier avant de publier. S'il n'y en a aucune, écrire "Aucune"]`;
-
+[Informations importantes à vérifier ou "Aucune"]`;
 
         const response = await fetch(
             "https://api.openai.com/v1/responses",
@@ -195,7 +348,7 @@ CONFIRMATIONS NÉCESSAIRES
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization":
-                        `Bearer ${process.env.OPENAI_API_KEY}`
+                        \`Bearer \${process.env.OPENAI_API_KEY}\`
                 },
 
                 body: JSON.stringify({
@@ -225,9 +378,7 @@ CONFIRMATIONS NÉCESSAIRES
             }
         );
 
-
         const data = await response.json();
-
 
         if (!response.ok) {
 
@@ -238,7 +389,6 @@ CONFIRMATIONS NÉCESSAIRES
             });
 
         }
-
 
         const text = data.output
 
@@ -256,11 +406,9 @@ CONFIRMATIONS NÉCESSAIRES
 
             ?.join("\n") || "";
 
-
         return res.status(200).json({
             result: text
         });
-
 
     } catch (error) {
 
