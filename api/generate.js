@@ -1,74 +1,132 @@
+```javascript
+// ==========================================
+// RECHERCHE TAVILY
+// ==========================================
+
 async function searchMarket(query) {
 
-    const response = await fetch(
-        "https://api.tavily.com/search",
-        {
-            method: "POST",
+    const controller =
+        new AbortController();
 
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-                api_key: process.env.TAVILY_API_KEY,
-                query: query,
-                search_depth: "advanced",
-                max_results: 6,
-                include_answer: false,
-                include_raw_content: false
-            })
-        }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-        throw new Error(
-            data.detail ||
-            data.error ||
-            "Tavily API error"
+    const timeout =
+        setTimeout(
+            () => controller.abort(),
+            8000
         );
-    }
-
-    return data.results || [];
-}
-
-
-module.exports = async function handler(req, res) {
-
-    if (req.method !== "POST") {
-
-        return res.status(405).json({
-            error: "Method not allowed"
-        });
-
-    }
 
     try {
 
-        const { images } = req.body;
+        const response = await fetch(
+            "https://api.tavily.com/search",
+            {
+                method: "POST",
 
-        if (
-            !images ||
-            !Array.isArray(images) ||
-            images.length === 0
-        ) {
+                headers: {
+                    "Content-Type": "application/json"
+                },
 
-            return res.status(400).json({
-                error: "No images provided"
+                body: JSON.stringify({
+                    api_key:
+                        process.env.TAVILY_API_KEY,
+
+                    query: query,
+
+                    search_depth: "advanced",
+
+                    max_results: 5,
+
+                    include_answer: false,
+
+                    include_raw_content: false
+                }),
+
+                signal: controller.signal
+            }
+        );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail ||
+                data.error ||
+                "Tavily API error"
+            );
+
+        }
+
+        return data.results || [];
+
+    } finally {
+
+        clearTimeout(timeout);
+
+    }
+}
+
+
+// ==========================================
+// HANDLER VERCEL
+// ==========================================
+
+module.exports =
+    async function handler(req, res) {
+
+        // ----------------------------------
+        // METHOD
+        // ----------------------------------
+
+        if (req.method !== "POST") {
+
+            return res.status(405).json({
+                error: "Method not allowed"
             });
 
         }
 
-        if (images.length > 10) {
 
-            return res.status(400).json({
-                error: "Maximum 10 images allowed"
-            });
+        try {
 
-        }
+            // ----------------------------------
+            // IMAGES
+            // ----------------------------------
 
-        const prompt = `Tu es un expert de la création d'annonces Vinted et de l'analyse visuelle de produits.
+            const {
+                images
+            } = req.body || {};
+
+
+            if (
+                !images ||
+                !Array.isArray(images) ||
+                images.length === 0
+            ) {
+
+                return res.status(400).json({
+                    error:
+                        "Aucune photo reçue."
+                });
+
+            }
+
+
+            if (images.length > 10) {
+
+                return res.status(400).json({
+                    error:
+                        "Maximum 10 photos autorisées."
+                });
+
+            }
+
+
+            // ==========================================
+            // PROMPT PRINCIPAL
+            // ==========================================
+
+            const prompt = `Tu es un expert de la création d'annonces Vinted et de l'analyse visuelle de produits.
 
 Toutes les images représentent le MÊME article.
 
@@ -83,36 +141,40 @@ Si une information importante n'est pas clairement identifiable, écris "À conf
 1. ANALYSE DU PRODUIT
 ==============================
 
-Avant de générer la moindre information, analyse attentivement TOUTES les photos.
+Analyse attentivement TOUTES les photos.
 
-Toutes les photos représentent le même article.
+Compare les différentes photos entre elles.
 
-FAIS UNE VÉRIFICATION CROISÉE :
+Cherche les informations présentes sur :
 
-- compare les différentes photos entre elles ;
-- cherche les informations présentes sur les étiquettes, logos, emballages, inscriptions et références ;
-- vérifie si une information visible sur une photo est cohérente avec les autres photos ;
-- utilise plusieurs photos lorsqu'elles montrent des angles ou détails différents ;
-- ne déduis jamais une information uniquement à partir de l'apparence générale du produit ;
-- ne transforme jamais une supposition en information certaine.
+- étiquettes ;
+- logos ;
+- emballages ;
+- inscriptions ;
+- références ;
+- numéros de modèle.
 
-ORDRE DE FIABILITÉ DES INFORMATIONS :
+Vérifie la cohérence des informations entre les photos.
 
-1. Texte ou référence clairement lisible sur le produit ou son emballage ;
+Ne transforme jamais une supposition en information certaine.
+
+ORDRE DE FIABILITÉ :
+
+1. Texte clairement lisible ;
 2. Étiquette clairement visible ;
-3. Logo ou marquage clairement identifiable ;
+3. Logo clairement identifiable ;
 4. Caractéristique directement visible ;
-5. Apparence générale du produit.
+5. Apparence générale.
 
-Si deux photos semblent donner des informations différentes :
+Si deux photos donnent des informations différentes :
 
 - ne choisis pas arbitrairement ;
-- considère l'information comme "À confirmer" ;
+- indique "À confirmer" ;
 - indique le point à vérifier dans "CONFIRMATIONS NÉCESSAIRES".
 
 IDENTIFICATION :
 
-Identifie uniquement les informations réellement justifiées par les photos :
+Identifie uniquement les informations réellement justifiées :
 
 - type d'article ;
 - marque ;
@@ -123,53 +185,39 @@ Identifie uniquement les informations réellement justifiées par les photos :
 - couleur ;
 - matière ;
 - caractéristiques ;
-- accessoires éventuels ;
-- état général ;
+- accessoires ;
+- état ;
 - défauts visibles.
 
 MARQUE ET MODÈLE :
 
 Ne reconnais une marque ou un modèle que si les éléments visibles permettent raisonnablement de l'identifier.
 
-Une ressemblance visuelle avec un produit connu ne suffit pas.
+Une ressemblance visuelle ne suffit pas.
 
-Si plusieurs modèles sont visuellement similaires et qu'aucun élément ne permet de les distinguer, écris "À confirmer".
+RÉFÉRENCE :
 
-RÉFÉRENCE ET ÉDITION :
+N'utilise une référence que si elle est suffisamment lisible.
 
-Lorsqu'une référence, un numéro de modèle, une édition ou une inscription est visible, utilise-la uniquement si elle est suffisamment lisible.
-
-Ne complète jamais une référence partiellement visible avec des caractères supposés.
+Ne complète jamais une référence partiellement visible.
 
 TAILLE :
 
-N'indique une taille que si elle est visible ou clairement identifiable sur une étiquette.
+N'indique une taille que si elle est visible ou clairement indiquée.
 
-Ne déduis jamais une taille à partir des dimensions apparentes du produit.
+Ne déduis jamais une taille à partir des dimensions apparentes.
 
 MATIÈRE :
 
-N'indique une matière que si elle est indiquée sur une étiquette ou clairement identifiable.
-
-Ne déduis pas une matière simplement à partir de son apparence.
+N'indique une matière que si elle est indiquée ou clairement identifiable.
 
 COULEUR :
 
 Indique la couleur réellement visible.
 
-Si plusieurs couleurs sont présentes, décris les couleurs principales sans inventer de nuance précise.
-
 ACCESSOIRES :
 
-N'indique un accessoire comme inclus que s'il est clairement visible sur les photos.
-
-Ne considère jamais qu'un accessoire est inclus simplement parce qu'il est habituellement fourni avec ce produit.
-
-IMPORTANT :
-
-Une information probable mais non suffisamment vérifiée doit être considérée comme "À confirmer".
-
-Ne jamais inventer une information pour compléter l'annonce.
+N'indique un accessoire comme inclus que s'il est clairement visible.
 
 ==============================
 2. ÉTAT ET DÉFAUTS
@@ -195,13 +243,13 @@ Ne mentionne qu'un défaut réellement visible.
 
 Pour chaque défaut, indique brièvement sa localisation.
 
-Si aucun défaut n'est clairement visible sur les zones correctement photographiées, écris :
+Si aucun défaut n'est clairement visible :
 
 "Aucun défaut visible sur les photos."
 
-Ne considère jamais une zone cachée, floue ou non photographiée comme intacte.
+Ne considère jamais une zone cachée ou non photographiée comme intacte.
 
-L'état doit être l'une des valeurs suivantes :
+L'état doit être :
 
 - Neuf
 - Comme neuf
@@ -214,15 +262,15 @@ L'état doit être l'une des valeurs suivantes :
 3. DESCRIPTION VINTED
 ==============================
 
-La description sera copiée directement dans une annonce Vinted.
+La description sera copiée directement dans Vinted.
 
 Elle doit :
 
 - contenir 1 à 3 phrases ;
-- être naturelle et fluide ;
-- être courte et agréable à lire ;
+- être naturelle ;
+- être courte ;
 - présenter simplement l'article ;
-- mentionner son édition, modèle, marque ou caractéristiques uniquement lorsqu'ils sont certains ;
+- mentionner uniquement les informations certaines ;
 - donner envie d'acheter sans exagérer ;
 - être directement prête à publier.
 
@@ -230,25 +278,9 @@ RÈGLE ABSOLUE :
 
 NE JAMAIS DÉCRIRE LES DÉFAUTS DANS LA DESCRIPTION.
 
-Les défauts, accrocs, déchirures, rayures, plis, taches, traces d'usure ou autres imperfections doivent apparaître UNIQUEMENT dans la section :
+Les défauts doivent apparaître UNIQUEMENT dans :
 
 DÉFAUTS VISIBLES
-
-Ne jamais recopier, résumer ou reformuler les défauts visibles dans la DESCRIPTION.
-
-Ne jamais écrire dans la description :
-
-- "vendu tel que sur les photos" ;
-- "voir photos pour les défauts" ;
-- "quelques défauts visibles" ;
-- "présente des traces d'usure" ;
-- "présente quelques marques" ;
-- "avec un petit accroc" ;
-- "avec une déchirure" ;
-- "avec des plis" ;
-- toute autre formulation décrivant un défaut.
-
-La description doit rester positive et factuelle, sans cacher volontairement un défaut : les défauts sont simplement réservés à la section DÉFAUTS VISIBLES.
 
 La description ne doit jamais contenir :
 
@@ -258,28 +290,15 @@ La description ne doit jamais contenir :
 - "d'après les photos" ;
 - "sous réserve" ;
 - "peut-être" ;
-- "je ne peux pas confirmer" ;
-- "l'état reste à vérifier" ;
 - une question ;
 - une analyse interne ;
 - une information incertaine.
 
-Si la marque, le modèle, la taille ou la matière ne sont pas certains, ne les mentionne pas dans la description.
+Si marque, modèle, taille ou matière ne sont pas certains, ne les mentionne pas.
 
-Les incertitudes doivent apparaître uniquement dans :
+Les incertitudes apparaissent uniquement dans :
 
 CONFIRMATIONS NÉCESSAIRES
-
-N'utilise pas automatiquement :
-
-- "excellent état" ;
-- "comme neuf" ;
-- "parfait état" ;
-- "jamais porté" ;
-- "authentique" ;
-- "article rare" ;
-- "qualité exceptionnelle" ;
-- "sans aucun défaut".
 
 ==============================
 4. TITRE
@@ -290,56 +309,28 @@ Le titre doit :
 - être adapté à Vinted ;
 - être naturel ;
 - contenir uniquement les informations connues ;
-- ne pas inventer de marque ou de modèle ;
+- ne pas inventer de marque ou modèle ;
 - faire maximum 80 caractères.
 
 ==============================
-5. CATÉGORIE ET ATTRIBUTS VINTED
+5. CATÉGORIE ET ATTRIBUTS
 ==============================
 
-Détermine la catégorie et les attributs de l'article avec le plus haut niveau de précision possible.
-
-CATÉGORIE :
-
-Choisis la catégorie Vinted la plus précise correspondant réellement à l'article.
-
-Ne choisis pas une catégorie uniquement parce qu'elle est proche.
-
-Exemples :
-
-- un manga doit être classé dans une catégorie liée aux livres / mangas ;
-- une montre doit être classée dans une catégorie liée aux montres ;
-- une paire de chaussures doit être classée dans une catégorie liée aux chaussures ;
-- un vêtement doit être classé selon son type réel ;
-- un accessoire doit être classé selon sa fonction réelle.
-
-Si plusieurs catégories sont possibles et qu'aucune ne peut être déterminée avec suffisamment de certitude, choisis la catégorie la plus probable et indique la vérification dans "CONFIRMATIONS NÉCESSAIRES".
-
-ATTRIBUTS :
-
-Pour chaque attribut, utilise uniquement les informations réellement établies par les photos.
+Détermine la catégorie Vinted la plus précise possible.
 
 MARQUE :
-- utilise la marque uniquement si elle est clairement identifiable ;
-- sinon : "À confirmer".
+Marque certaine ou "À confirmer".
 
 TAILLE :
-- utilise uniquement la taille visible ou clairement indiquée ;
-- ne déduis jamais une taille à partir des dimensions apparentes ;
-- pour un article sans taille applicable, indique "Non applicable" lorsque cela est pertinent ;
-- sinon : "À confirmer".
+Taille certaine, "Non applicable" ou "À confirmer".
 
 COULEUR :
-- indique la couleur principale réellement visible ;
-- si plusieurs couleurs importantes sont présentes, indique-les de manière simple ;
-- n'invente pas de nuance précise.
+Couleur principale réellement visible.
 
 MATIÈRE :
-- indique uniquement une matière clairement indiquée ou suffisamment identifiable ;
-- sinon : "À confirmer".
+Matière certaine ou "À confirmer".
 
 ÉTAT :
-Utilise uniquement l'une des valeurs suivantes :
 
 - Neuf
 - Comme neuf
@@ -348,77 +339,45 @@ Utilise uniquement l'une des valeurs suivantes :
 - État satisfaisant
 - À confirmer
 
-Ne choisis jamais "Neuf" simplement parce que l'article est encore emballé.
-
-Prends en compte l'état réel du produit ET de son emballage lorsqu'un emballage est présent.
-
-RÈGLE DE COHÉRENCE :
-
-Les informations suivantes doivent être cohérentes entre elles :
-
-- catégorie ;
-- marque ;
-- taille ;
-- couleur ;
-- matière ;
-- état ;
-- description ;
-- défauts visibles ;
-- mots-clés.
-
-Ne génère jamais une information dans les mots-clés ou la description qui contredit les attributs identifiés.
-
-Si une information n'est pas suffisamment certaine, utilise "À confirmer" plutôt que de faire une supposition.
-
 ==============================
-6. MOTS-CLÉS VINTED
+6. MOTS-CLÉS
 ==============================
 
-Génère entre 5 et 10 mots-clés pertinents pour aider les acheteurs à trouver l'article.
+Génère entre 5 et 10 mots-clés pertinents.
 
-Les mots-clés doivent :
+Ils doivent :
 
 - être directement liés à l'article ;
-- être adaptés aux recherches Vinted ;
-- utiliser les informations réellement connues ;
+- être adaptés à Vinted ;
+- utiliser uniquement les informations connues ;
 - éviter les répétitions ;
 - être courts ;
-- être séparés par des virgules ;
-- ne pas contenir de marque ou de modèle incertain ;
-- ne pas exagérer la valeur de l'article.
+- être séparés par des virgules.
 
-N'utilise pas de mots-clés comme :
+N'utilise pas automatiquement :
 
 - luxe ;
 - rare ;
 - premium ;
 - collector ;
 - authentique ;
-- vintage ;
-
-sauf si leur utilisation est réellement justifiée.
-
-Les mots-clés ne doivent pas être inclus dans la description.
+- vintage.
 
 ==============================
 7. PRIX
 ==============================
 
-Pour le moment, propose une estimation prudente basée sur :
+Pour la première estimation, utilise :
 
-- le type d'article ;
-- la marque identifiable ;
-- l'état visible ;
-- les défauts visibles ;
-- la valeur supposée du produit.
+- type d'article ;
+- marque ;
+- état ;
+- défauts ;
+- valeur supposée.
 
 Le prix de mise en vente doit être légèrement supérieur au prix conseillé.
 
-IMPORTANT :
-
-Une recherche de marché sera effectuée après ton analyse initiale.
-
-Ne prétends pas avoir utilisé des données de marché dans cette première analyse.
+Une recherche de marché pourra être effectuée ensuite.
 
 ==============================
 8. CONFIRMATIONS
@@ -435,7 +394,7 @@ Indique uniquement les informations importantes à vérifier :
 - accessoire éventuellement manquant ;
 - catégorie exacte.
 
-Si aucune vérification importante n'est nécessaire, écris :
+Si rien n'est important à vérifier :
 
 "Aucune"
 
@@ -443,356 +402,478 @@ Si aucune vérification importante n'est nécessaire, écris :
 FORMAT OBLIGATOIRE
 ==============================
 
-Retourne exactement les sections suivantes, dans cet ordre :
-
 TITRE
 [Un titre Vinted de maximum 80 caractères]
 
 DESCRIPTION
-[Une description naturelle de 1 à 3 phrases, directement copiable]
+[Une description naturelle de 1 à 3 phrases]
 
 CATÉGORIE
-[Catégorie Vinted la plus adaptée]
+[Catégorie Vinted]
 
 MARQUE
-[Marque certaine ou "À confirmer"]
+[Marque ou "À confirmer"]
 
 TAILLE
-[Taille certaine, "Non applicable" ou "À confirmer"]
+[Taille, "Non applicable" ou "À confirmer"]
 
 COULEUR
-[Couleur visible]
+[Couleur]
 
 MATIÈRE
-[Matière certaine ou "À confirmer"]
+[Matière ou "À confirmer"]
 
 ÉTAT
-[Une des catégories d'état autorisées]
+[État]
 
 DÉFAUTS VISIBLES
-[Défauts réellement visibles ou "Aucun défaut visible sur les photos."]
+[Défauts ou "Aucun défaut visible sur les photos."]
 
 MOTS-CLÉS
 [5 à 10 mots-clés séparés par des virgules]
 
 PRIX CONSEILLÉ
-[Prix prudent en euros]
+[Prix en euros]
 
 PRIX DE MISE EN VENTE
-[Prix en euros légèrement supérieur]
+[Prix en euros]
 
 CONFIRMATIONS NÉCESSAIRES
-[Informations importantes à vérifier ou "Aucune"]`;
+[Informations à vérifier ou "Aucune"]`;
 
-        // ==========================================
-        // 1. ANALYSE VISUELLE
-        // ==========================================
 
-        const response = await fetch(
-            "https://api.openai.com/v1/responses",
-            {
-                method: "POST",
+            // ==========================================
+            // OPENAI - ANALYSE VISUELLE
+            // ==========================================
 
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization":
-                        `Bearer ${process.env.OPENAI_API_KEY}`
-                },
+            const openAIResponse =
+                await fetch(
+                    "https://api.openai.com/v1/responses",
+                    {
+                        method: "POST",
 
-                body: JSON.stringify({
+                        headers: {
+                            "Content-Type":
+                                "application/json",
 
-                    model: "gpt-5-mini",
+                            "Authorization":
+                                `Bearer ${process.env.OPENAI_API_KEY}`
+                        },
 
-                    input: [
-                        {
-                            role: "user",
+                        body: JSON.stringify({
 
-                            content: [
+                            model: "gpt-5-mini",
+
+                            input: [
 
                                 {
-                                    type: "input_text",
-                                    text: prompt
-                                },
+                                    role: "user",
 
-                                ...images.map(image => ({
-                                    type: "input_image",
-                                    image_url: image
-                                }))
+                                    content: [
+
+                                        {
+                                            type:
+                                                "input_text",
+
+                                            text:
+                                                prompt
+                                        },
+
+                                        ...images.map(
+                                            image => ({
+
+                                                type:
+                                                    "input_image",
+
+                                                image_url:
+                                                    image
+
+                                            })
+                                        )
+
+                                    ]
+
+                                }
 
                             ]
 
-                        }
-                    ]
-
-                })
-
-            }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-
-            return res.status(response.status).json({
-                error:
-                    data.error?.message ||
-                    "OpenAI API error"
-            });
-
-        }
-
-        const text = data.output
-
-            ?.flatMap(
-                item => item.content || []
-            )
-
-            ?.filter(
-                item => item.type === "output_text"
-            )
-
-            ?.map(
-                item => item.text
-            )
-
-            ?.join("\n") || "";
-
-        if (!text) {
-
-            return res.status(500).json({
-                error: "No analysis result returned"
-            });
-
-        }
-
-        // ==========================================
-        // 2. EXTRACTION DES INFORMATIONS
-        // ==========================================
-
-        function extractSection(source, start, end) {
-
-            const startIndex =
-                source.indexOf(start);
-
-            if (startIndex === -1) {
-                return "";
-            }
-
-            const contentStart =
-                startIndex + start.length;
-
-            const endIndex =
-                source.indexOf(
-                    end,
-                    contentStart
+                        })
+                    }
                 );
 
-            if (endIndex === -1) {
+
+            const openAIData =
+                await openAIResponse.json();
+
+
+            if (!openAIResponse.ok) {
+
+                console.error(
+                    "OpenAI error:",
+                    openAIData
+                );
+
+                return res.status(
+                    openAIResponse.status
+                ).json({
+
+                    error:
+                        openAIData.error?.message ||
+                        "Erreur OpenAI."
+
+                });
+
+            }
+
+
+            // ==========================================
+            // EXTRAIRE LE TEXTE
+            // ==========================================
+
+            const text =
+                openAIData.output
+
+                    ?.flatMap(
+                        item =>
+                            item.content || []
+                    )
+
+                    ?.filter(
+                        item =>
+                            item.type ===
+                            "output_text"
+                    )
+
+                    ?.map(
+                        item =>
+                            item.text
+                    )
+
+                    ?.join("\n") || "";
+
+
+            if (!text) {
+
+                return res.status(500).json({
+
+                    error:
+                        "OpenAI n'a retourné aucun résultat."
+
+                });
+
+            }
+
+
+            // ==========================================
+            // EXTRACTION
+            // ==========================================
+
+            function extractSection(
+                source,
+                start,
+                end
+            ) {
+
+                const startIndex =
+                    source.indexOf(start);
+
+
+                if (
+                    startIndex === -1
+                ) {
+
+                    return "";
+
+                }
+
+
+                const contentStart =
+                    startIndex +
+                    start.length;
+
+
+                if (!end) {
+
+                    return source
+                        .slice(contentStart)
+                        .trim();
+
+                }
+
+
+                const endIndex =
+                    source.indexOf(
+                        end,
+                        contentStart
+                    );
+
+
+                if (
+                    endIndex === -1
+                ) {
+
+                    return source
+                        .slice(contentStart)
+                        .trim();
+
+                }
+
 
                 return source
-                    .slice(contentStart)
+                    .slice(
+                        contentStart,
+                        endIndex
+                    )
                     .trim();
 
             }
 
-            return source
-                .slice(
-                    contentStart,
-                    endIndex
-                )
-                .trim();
-        }
 
-        const titre = extractSection(
-            text,
-            "TITRE",
-            "DESCRIPTION"
-        );
-
-        const categorie = extractSection(
-            text,
-            "CATÉGORIE",
-            "MARQUE"
-        );
-
-        const marque = extractSection(
-            text,
-            "MARQUE",
-            "TAILLE"
-        );
-
-        const taille = extractSection(
-            text,
-            "TAILLE",
-            "COULEUR"
-        );
-
-        const etat = extractSection(
-            text,
-            "ÉTAT",
-            "DÉFAUTS VISIBLES"
-        );
-
-        // ==========================================
-        // 3. RECHERCHE DES COMPARABLES
-        // ==========================================
-
-        const searchQueries = [];
-
-        const cleanValue = value => {
-
-            if (!value) {
-                return "";
-            }
-
-            const normalized =
-                value.trim();
-
-            if (
-                normalized === "À confirmer" ||
-                normalized === "Non applicable"
-            ) {
-                return "";
-            }
-
-            return normalized;
-        };
-
-        const cleanTitle =
-            cleanValue(titre);
-
-        const cleanBrand =
-            cleanValue(marque);
-
-        const cleanCategory =
-            cleanValue(categorie);
-
-        const baseQuery = [
-            cleanTitle,
-            cleanBrand,
-            cleanCategory
-        ]
-            .filter(Boolean)
-            .join(" ")
-            .trim();
-
-        if (baseQuery) {
-
-            searchQueries.push(
-                `"${baseQuery}" prix occasion`
-            );
-
-            searchQueries.push(
-                `"${baseQuery}" Vinted`
-            );
-
-            searchQueries.push(
-                `"${baseQuery}" Leboncoin eBay`
-            );
-
-        }
-
-        let marketResults = [];
-
-        try {
-
-            for (const query of searchQueries) {
-
-                const results =
-                    await searchMarket(query);
-
-                marketResults.push(
-                    ...results
+            const titre =
+                extractSection(
+                    text,
+                    "TITRE",
+                    "DESCRIPTION"
                 );
 
-            }
 
-        } catch (marketError) {
+            const categorie =
+                extractSection(
+                    text,
+                    "CATÉGORIE",
+                    "MARQUE"
+                );
 
-            console.error(
-                "Market search error:",
-                marketError.message
-            );
 
-            // Tavily ne doit jamais empêcher
-            // SellPilot de générer une annonce.
+            const marque =
+                extractSection(
+                    text,
+                    "MARQUE",
+                    "TAILLE"
+                );
 
-            return res.status(200).json({
-                result: text
-            });
 
-        }
+            const taille =
+                extractSection(
+                    text,
+                    "TAILLE",
+                    "COULEUR"
+                );
 
-        // ==========================================
-        // 4. NETTOYAGE DES COMPARABLES
-        // ==========================================
 
-        const uniqueResults = [];
+            // ==========================================
+            // RECHERCHE MARCHÉ
+            // ==========================================
 
-        const seenUrls =
-            new Set();
+            const cleanValue =
+                value => {
 
-        for (const result of marketResults) {
+                    if (!value) {
+                        return "";
+                    }
+
+                    const normalized =
+                        value.trim();
+
+                    if (
+                        normalized ===
+                            "À confirmer" ||
+
+                        normalized ===
+                            "Non applicable"
+                    ) {
+
+                        return "";
+
+                    }
+
+                    return normalized;
+
+                };
+
+
+            const cleanTitle =
+                cleanValue(titre);
+
+
+            const cleanBrand =
+                cleanValue(marque);
+
+
+            const cleanCategory =
+                cleanValue(categorie);
+
+
+            const baseQuery =
+                [
+                    cleanTitle,
+                    cleanBrand,
+                    cleanCategory
+                ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .trim();
+
+
+            let marketResults = [];
+
+
+            // ==========================================
+            // TAVILY EST OPTIONNEL
+            // ==========================================
 
             if (
-                !result ||
-                !result.url ||
-                seenUrls.has(result.url)
+                baseQuery &&
+                process.env.TAVILY_API_KEY
             ) {
-                continue;
+
+                const queries = [
+
+                    `"${baseQuery}" prix occasion`,
+
+                    `"${baseQuery}" Vinted`,
+
+                    `"${baseQuery}" Leboncoin`
+
+                ];
+
+
+                for (
+                    const query of queries
+                ) {
+
+                    try {
+
+                        const results =
+                            await searchMarket(
+                                query
+                            );
+
+
+                        if (
+                            Array.isArray(
+                                results
+                            )
+                        ) {
+
+                            marketResults.push(
+                                ...results
+                            );
+
+                        }
+
+                    } catch (error) {
+
+                        console.error(
+                            "Tavily search failed:",
+                            error.message
+                        );
+
+                        // IMPORTANT :
+                        // On continue malgré l'erreur.
+
+                    }
+
+                }
+
             }
 
-            seenUrls.add(result.url);
 
-            uniqueResults.push({
+            // ==========================================
+            // DÉDUPLICATION
+            // ==========================================
 
-                title:
-                    result.title || "",
+            const uniqueResults = [];
 
-                url:
-                    result.url || "",
+            const seenUrls =
+                new Set();
 
-                content:
-                    (result.content || "")
-                        .slice(0, 1800)
 
-            });
+            for (
+                const item
+                of marketResults
+            ) {
 
-        }
+                if (
+                    !item ||
+                    !item.url ||
+                    seenUrls.has(
+                        item.url
+                    )
+                ) {
 
-        const usefulResults =
-            uniqueResults.slice(0, 15);
+                    continue;
 
-        // ==========================================
-        // 5. RECALCUL DU PRIX
-        // ==========================================
+                }
 
-        if (usefulResults.length > 0) {
 
-            const marketContext =
-                usefulResults
-                    .map(
-                        (result, index) =>
-                            `
+                seenUrls.add(
+                    item.url
+                );
+
+
+                uniqueResults.push({
+
+                    title:
+                        item.title || "",
+
+                    url:
+                        item.url || "",
+
+                    content:
+                        (
+                            item.content || ""
+                        ).slice(
+                            0,
+                            1500
+                        )
+
+                });
+
+            }
+
+
+            const usefulResults =
+                uniqueResults.slice(
+                    0,
+                    12
+                );
+
+
+            // ==========================================
+            // PRIX AVEC TAVILY
+            // ==========================================
+
+            if (
+                usefulResults.length > 0
+            ) {
+
+                const marketContext =
+                    usefulResults
+                        .map(
+                            (
+                                item,
+                                index
+                            ) => `
+
 COMPARABLE ${index + 1}
 
 Titre :
-${result.title}
+${item.title}
 
 Source :
-${result.url}
+${item.url}
 
-Informations trouvées :
-${result.content}
+Informations :
+${item.content}
 `
-                    )
-                    .join("\n");
+                        )
+                        .join("\n");
 
-            const pricingPrompt = `Tu es maintenant responsable de l'estimation du prix de vente d'un article d'occasion.
 
-Tu dois améliorer UNIQUEMENT les deux prix de l'annonce existante.
+                const pricingPrompt = `Tu es expert du prix des produits d'occasion.
 
-ARTICLE IDENTIFIÉ :
+ARTICLE :
 
 Titre :
 ${titre}
@@ -806,232 +887,224 @@ ${marque}
 Taille :
 ${taille}
 
-État :
-${etat}
-
-RÉSULTATS TROUVÉS SUR LE WEB :
+RÉSULTATS INTERNET :
 
 ${marketContext}
 
-==============================
-RÈGLES DE COMPARAISON
-==============================
+Analyse uniquement les comparables réellement pertinents.
 
-Analyse les résultats avec beaucoup de prudence.
+Ignore :
 
-Un résultat trouvé sur le web n'est PAS automatiquement un comparable.
+- produits différents ;
+- modèles différents ;
+- éditions différentes ;
+- accessoires ;
+- lots ;
+- produits neufs si notre article est d'occasion ;
+- résultats manifestement aberrants.
 
-Ignore les résultats qui concernent clairement :
+Les prix trouvés sont des prix demandés, pas nécessairement des prix réellement vendus.
 
-- un produit différent ;
-- un autre modèle ;
-- une autre édition ;
-- une autre référence ;
-- un lot alors que notre article est vendu seul ;
-- un accessoire au lieu du produit ;
-- une taille différente lorsque la taille influence fortement la valeur ;
-- un produit neuf lorsque notre article est d'occasion ;
-- un produit avec des caractéristiques très différentes.
+Utilise plusieurs comparables lorsque possible.
 
-Donne davantage de poids aux résultats qui correspondent au même :
+Tiens compte de l'état et des défauts de notre article.
 
-- produit ;
-- modèle ;
-- édition ;
-- référence ;
-- marque.
+Si les résultats sont mauvais ou insuffisants, reste prudent.
 
-Les prix affichés en ligne sont des prix demandés et non nécessairement des prix de vente réellement réalisés.
-
-Ne considère donc jamais un prix isolé comme une vérité.
-
-Si plusieurs prix comparables existent :
-
-- identifie la tendance générale ;
-- écarte les valeurs manifestement aberrantes ;
-- tiens compte de l'état de notre article ;
-- tiens compte des défauts visibles ;
-- tiens compte de l'édition ou de la référence ;
-- tiens compte de la rareté uniquement si elle est réellement établie par les comparables.
-
-Si les résultats sont faibles, contradictoires ou peu pertinents :
-
-- ne force pas une estimation précise ;
-- conserve une estimation prudente ;
-- utilise les données disponibles uniquement comme indication.
-
-IMPORTANT :
-
-Ne donne jamais un prix simplement parce qu'il apparaît dans un résultat.
-
-Le prix doit être cohérent avec plusieurs éléments lorsque plusieurs comparables fiables existent.
-
-==============================
-FORMAT DE SORTIE
-==============================
-
-Retourne exactement :
+Retourne EXACTEMENT :
 
 PRIX CONSEILLÉ
 [prix en euros]
 
 PRIX DE MISE EN VENTE
-[prix en euros légèrement supérieur]
+[prix en euros]
 
-Ne retourne aucune autre section.
-Ne retourne aucune explication.
-Ne retourne aucun commentaire.`;
+Aucune explication.`;
 
-            try {
 
-                const pricingResponse =
-                    await fetch(
-                        "https://api.openai.com/v1/responses",
-                        {
-                            method: "POST",
+                try {
 
-                            headers: {
-                                "Content-Type":
-                                    "application/json",
+                    const pricingResponse =
+                        await fetch(
+                            "https://api.openai.com/v1/responses",
+                            {
+                                method: "POST",
 
-                                "Authorization":
-                                    `Bearer ${process.env.OPENAI_API_KEY}`
-                            },
+                                headers: {
+                                    "Content-Type":
+                                        "application/json",
 
-                            body: JSON.stringify({
+                                    "Authorization":
+                                        `Bearer ${process.env.OPENAI_API_KEY}`
+                                },
 
-                                model: "gpt-5-mini",
+                                body: JSON.stringify({
 
-                                input: pricingPrompt
+                                    model:
+                                        "gpt-5-mini",
 
-                            })
+                                    input:
+                                        pricingPrompt
 
-                        }
-                    );
+                                })
 
-                const pricingData =
-                    await pricingResponse.json();
-
-                if (pricingResponse.ok) {
-
-                    const pricingText =
-                        pricingData.output
-
-                            ?.flatMap(
-                                item =>
-                                    item.content || []
-                            )
-
-                            ?.filter(
-                                item =>
-                                    item.type ===
-                                    "output_text"
-                            )
-
-                            ?.map(
-                                item => item.text
-                            )
-
-                            ?.join("\n") || "";
-
-                    const newRecommendedPrice =
-                        extractSection(
-                            pricingText,
-                            "PRIX CONSEILLÉ",
-                            "PRIX DE MISE EN VENTE"
+                            }
                         );
 
-                    const newListingPrice =
-                        extractSection(
-                            pricingText,
-                            "PRIX DE MISE EN VENTE",
-                            "__END__"
-                        );
+
+                    const pricingData =
+                        await pricingResponse.json();
+
 
                     if (
-                        newRecommendedPrice &&
-                        newListingPrice
+                        pricingResponse.ok
                     ) {
 
-                        const pricingStart =
-                            text.indexOf(
-                                "PRIX CONSEILLÉ"
+                        const pricingText =
+                            pricingData.output
+
+                                ?.flatMap(
+                                    item =>
+                                        item.content ||
+                                        []
+                                )
+
+                                ?.filter(
+                                    item =>
+                                        item.type ===
+                                        "output_text"
+                                )
+
+                                ?.map(
+                                    item =>
+                                        item.text
+                                )
+
+                                ?.join("\n") ||
+                                "";
+
+
+                        const newRecommendedPrice =
+                            extractSection(
+                                pricingText,
+                                "PRIX CONSEILLÉ",
+                                "PRIX DE MISE EN VENTE"
                             );
 
-                        const confirmationsStart =
-                            text.indexOf(
-                                "CONFIRMATIONS NÉCESSAIRES"
+
+                        const newListingPrice =
+                            extractSection(
+                                pricingText,
+                                "PRIX DE MISE EN VENTE",
+                                null
                             );
+
 
                         if (
-                            pricingStart !== -1 &&
-                            confirmationsStart !== -1
+                            newRecommendedPrice &&
+                            newListingPrice
                         ) {
 
-                            const beforePricing =
-                                text.slice(
-                                    0,
-                                    pricingStart
+                            const pricingStart =
+                                text.indexOf(
+                                    "PRIX CONSEILLÉ"
                                 );
 
-                            const confirmations =
-                                text.slice(
-                                    confirmationsStart
+
+                            const confirmationsStart =
+                                text.indexOf(
+                                    "CONFIRMATIONS NÉCESSAIRES"
                                 );
 
-                            const updatedPricing =
-                                `PRIX CONSEILLÉ
+
+                            if (
+                                pricingStart !== -1 &&
+                                confirmationsStart !== -1
+                            ) {
+
+                                const beforePricing =
+                                    text.slice(
+                                        0,
+                                        pricingStart
+                                    );
+
+
+                                const confirmations =
+                                    text.slice(
+                                        confirmationsStart
+                                    );
+
+
+                                const updatedPricing =
+                                    `PRIX CONSEILLÉ
 ${newRecommendedPrice}
 
 PRIX DE MISE EN VENTE
 ${newListingPrice}`;
 
-                            const updatedText =
-                                beforePricing +
-                                updatedPricing +
-                                "\n\n" +
-                                confirmations;
 
-                            return res.status(200).json({
-                                result: updatedText
-                            });
+                                const updatedText =
+                                    beforePricing +
+                                    updatedPricing +
+                                    "\n\n" +
+                                    confirmations;
+
+
+                                return res.status(
+                                    200
+                                ).json({
+
+                                    result:
+                                        updatedText
+
+                                });
+
+                            }
 
                         }
 
                     }
 
+                } catch (pricingError) {
+
+                    console.error(
+                        "Pricing error:",
+                        pricingError.message
+                    );
+
                 }
-
-            } catch (pricingError) {
-
-                console.error(
-                    "Pricing analysis error:",
-                    pricingError.message
-                );
 
             }
 
+
+            // ==========================================
+            // FALLBACK NORMAL
+            // ==========================================
+
+            return res.status(200).json({
+
+                result: text
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Generate error:",
+                error
+            );
+
+
+            return res.status(500).json({
+
+                error:
+                    error.message ||
+                    "Erreur serveur."
+
+            });
+
         }
 
-        // ==========================================
-        // 6. FALLBACK
-        // ==========================================
-
-        return res.status(200).json({
-            result: text
-        });
-
-    } catch (error) {
-
-        console.error(
-            "Generate error:",
-            error
-        );
-
-        return res.status(500).json({
-            error: error.message
-        });
-
-    }
-
-};
+    };
+```
