@@ -47,11 +47,42 @@ Si une information importante n'est pas clairement identifiable, écris "À conf
 1. ANALYSE DU PRODUIT
 ==============================
 
-Identifie uniquement les informations réellement visibles :
+Avant de générer la moindre information, analyse attentivement TOUTES les photos.
+
+Toutes les photos représentent le même article.
+
+FAIS UNE VÉRIFICATION CROISÉE :
+
+- compare les différentes photos entre elles ;
+- cherche les informations présentes sur les étiquettes, logos, emballages, inscriptions et références ;
+- vérifie si une information visible sur une photo est cohérente avec les autres photos ;
+- utilise plusieurs photos lorsqu'elles montrent des angles ou détails différents ;
+- ne déduis jamais une information uniquement à partir de l'apparence générale du produit ;
+- ne transforme jamais une supposition en information certaine.
+
+ORDRE DE FIABILITÉ DES INFORMATIONS :
+
+1. Texte ou référence clairement lisible sur le produit ou son emballage ;
+2. Étiquette clairement visible ;
+3. Logo ou marquage clairement identifiable ;
+4. Caractéristique directement visible ;
+5. Apparence générale du produit.
+
+Si deux photos semblent donner des informations différentes :
+
+- ne choisis pas arbitrairement ;
+- considère l'information comme "À confirmer" ;
+- indique le point à vérifier dans "CONFIRMATIONS NÉCESSAIRES".
+
+IDENTIFICATION :
+
+Identifie uniquement les informations réellement justifiées par les photos :
 
 - type d'article ;
 - marque ;
 - modèle ;
+- édition ;
+- référence ;
 - taille ;
 - couleur ;
 - matière ;
@@ -60,7 +91,49 @@ Identifie uniquement les informations réellement visibles :
 - état général ;
 - défauts visibles.
 
-Analyse toutes les photos ensemble et utilise les détails visibles sur chaque image.
+MARQUE ET MODÈLE :
+
+Ne reconnais une marque ou un modèle que si les éléments visibles permettent raisonnablement de l'identifier.
+
+Une ressemblance visuelle avec un produit connu ne suffit pas.
+
+Si plusieurs modèles sont visuellement similaires et qu'aucun élément ne permet de les distinguer, écris "À confirmer".
+
+RÉFÉRENCE ET ÉDITION :
+
+Lorsqu'une référence, un numéro de modèle, une édition ou une inscription est visible, utilise-la uniquement si elle est suffisamment lisible.
+
+Ne complète jamais une référence partiellement visible avec des caractères supposés.
+
+TAILLE :
+
+N'indique une taille que si elle est visible ou clairement identifiable sur une étiquette.
+
+Ne déduis jamais une taille à partir des dimensions apparentes du produit.
+
+MATIÈRE :
+
+N'indique une matière que si elle est indiquée sur une étiquette ou clairement identifiable.
+
+Ne déduis pas une matière simplement à partir de son apparence.
+
+COULEUR :
+
+Indique la couleur réellement visible.
+
+Si plusieurs couleurs sont présentes, décris les couleurs principales sans inventer de nuance précise.
+
+ACCESSOIRES :
+
+N'indique un accessoire comme inclus que s'il est clairement visible sur les photos.
+
+Ne considère jamais qu'un accessoire est inclus simplement parce qu'il est habituellement fourni avec ce produit.
+
+IMPORTANT :
+
+Une information probable mais non suffisamment vérifiée doit être considérée comme "À confirmer".
+
+Ne jamais inventer une information pour compléter l'annonce.
 
 ==============================
 2. ÉTAT ET DÉFAUTS
