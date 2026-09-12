@@ -169,11 +169,17 @@ function displayResult(text) {
             "ÉTAT"
         ),
 
-        etat: extractSection(
-            text,
-            "ÉTAT",
-            "PRIX CONSEILLÉ"
-        ),
+       etat: extractSection(
+    text,
+    "ÉTAT",
+    "DÉFAUTS VISIBLES"
+),
+
+defauts: extractSection(
+    text,
+    "DÉFAUTS VISIBLES",
+    "PRIX CONSEILLÉ"
+),
 
         prix: extractSection(
             text,
@@ -296,14 +302,35 @@ function displayResult(text) {
             </div>
 
             <div class="info-card">
-                <span>État</span>
-                <strong>${escapeHTML(currentData.etat)}</strong>
-            </div>
+    <span>État</span>
+    <strong>${escapeHTML(currentData.etat)}</strong>
+</div>
 
-        </div>
+</div>
 
 
-        <!-- PRIX -->
+<!-- DÉFAUTS VISIBLES -->
+
+<div class="result-card defect-card">
+
+    <div class="card-header">
+
+        <span>
+            🔎 Défauts visibles
+        </span>
+
+    </div>
+
+    <div class="card-content">
+
+        ${escapeHTML(currentData.defauts)}
+
+    </div>
+
+</div>
+
+
+<!-- PRIX -->
 
         <div class="price-container">
 
