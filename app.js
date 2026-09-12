@@ -35,7 +35,11 @@ function displayImagePreviews() {
 
     preview.innerHTML = `
         <div class="preview-header">
-            <span>${selectedImages.length} photo${selectedImages.length > 1 ? "s" : ""} sélectionnée${selectedImages.length > 1 ? "s" : ""}</span>
+            <span>
+                ${selectedImages.length}
+                photo${selectedImages.length > 1 ? "s" : ""}
+                sélectionnée${selectedImages.length > 1 ? "s" : ""}
+            </span>
         </div>
 
         <div class="preview-grid">
@@ -92,7 +96,9 @@ generateButton.addEventListener("click", async function () {
             <div class="spinner"></div>
 
             <p>
-                SellPilot analyse tes ${selectedImages.length} photo${selectedImages.length > 1 ? "s" : ""}...
+                SellPilot analyse tes
+                ${selectedImages.length}
+                photo${selectedImages.length > 1 ? "s" : ""}...
             </p>
 
         </div>
@@ -100,11 +106,9 @@ generateButton.addEventListener("click", async function () {
 
     try {
 
-        // Compression des images avant envoi
         const images = await Promise.all(
             selectedImages.map(file => compressImage(file))
         );
-
 
         const response = await fetch("/api/generate", {
 
@@ -120,9 +124,7 @@ generateButton.addEventListener("click", async function () {
 
         });
 
-
         const data = await response.json();
-
 
         if (!response.ok) {
 
@@ -131,7 +133,6 @@ generateButton.addEventListener("click", async function () {
             );
 
         }
-
 
         displayResult(data.result);
 
@@ -176,11 +177,9 @@ function compressImage(file) {
 
         const reader = new FileReader();
 
-
         reader.onload = function (event) {
 
             const img = new Image();
-
 
             img.onload = function () {
 
@@ -190,8 +189,6 @@ function compressImage(file) {
                 let width = img.width;
                 let height = img.height;
 
-
-                // Réduction proportionnelle
                 if (width > maxWidth || height > maxHeight) {
 
                     const ratio = Math.min(
@@ -203,17 +200,14 @@ function compressImage(file) {
                     height = Math.round(height * ratio);
                 }
 
-
                 const canvas =
                     document.createElement("canvas");
 
                 canvas.width = width;
                 canvas.height = height;
 
-
                 const ctx =
                     canvas.getContext("2d");
-
 
                 ctx.drawImage(
                     img,
@@ -223,18 +217,14 @@ function compressImage(file) {
                     height
                 );
 
-
-                // JPEG compressé
                 const compressedImage =
                     canvas.toDataURL(
                         "image/jpeg",
                         0.82
                     );
 
-
                 resolve(compressedImage);
             };
-
 
             img.onerror = function () {
 
@@ -246,10 +236,8 @@ function compressImage(file) {
 
             };
 
-
             img.src = event.target.result;
         };
-
 
         reader.onerror = function () {
 
@@ -260,7 +248,6 @@ function compressImage(file) {
             );
 
         };
-
 
         reader.readAsDataURL(file);
     });
@@ -326,6 +313,12 @@ function displayResult(text) {
         defauts: extractSection(
             text,
             "DÉFAUTS VISIBLES",
+            "MOTS-CLÉS"
+        ),
+
+        motsCles: extractSection(
+            text,
+            "MOTS-CLÉS",
             "PRIX CONSEILLÉ"
         ),
 
@@ -457,7 +450,7 @@ function displayResult(text) {
         </div>
 
 
-        <!-- DÉFAUTS VISIBLES -->
+        <!-- DEFAUTS VISIBLES -->
 
         <div class="result-card defect-card">
 
@@ -472,6 +465,33 @@ function displayResult(text) {
             <div class="card-content">
 
                 ${escapeHTML(currentData.defauts)}
+
+            </div>
+
+        </div>
+
+
+        <!-- MOTS-CLES -->
+
+        <div class="result-card keywords-card">
+
+            <div class="card-header">
+
+                <span>
+                    🔑 Mots-clés Vinted
+                </span>
+
+                <button
+                    onclick="copyKeywords()"
+                >
+                    Copier
+                </button>
+
+            </div>
+
+            <div class="card-content keywords-content">
+
+                ${escapeHTML(currentData.motsCles)}
 
             </div>
 
@@ -493,7 +513,6 @@ function displayResult(text) {
                 </strong>
 
             </div>
-
 
             <div class="price-card highlight">
 
@@ -563,12 +582,10 @@ function extractSection(text, start, end) {
     const escapedStart =
         start.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-
     if (end) {
 
         const escapedEnd =
             end.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
 
         const regex = new RegExp(
             escapedStart +
@@ -578,7 +595,6 @@ function extractSection(text, start, end) {
             "i"
         );
 
-
         const match = text.match(regex);
 
         return match
@@ -586,13 +602,11 @@ function extractSection(text, start, end) {
             : "À confirmer";
     }
 
-
     const regex = new RegExp(
         escapedStart +
         "\\s*([\\s\\S]*)",
         "i"
     );
-
 
     const match = text.match(regex);
 
@@ -633,6 +647,21 @@ function getDescription() {
 
 
 // ================================
+// MOTS-CLES
+// ================================
+
+function getKeywords() {
+
+    return currentData.motsCles || "";
+}
+
+function copyKeywords() {
+
+    copyText(getKeywords());
+}
+
+
+// ================================
 // COPIER
 // ================================
 
@@ -666,7 +695,6 @@ async function copyAll() {
     const description =
         getDescription();
 
-
     const fullText = `
 
 ${title}
@@ -674,7 +702,6 @@ ${title}
 ${description}
 
 `.trim();
-
 
     await copyText(fullText);
 }
@@ -695,9 +722,7 @@ function showCopyMessage() {
     message.textContent =
         "✓ Copié !";
 
-
     document.body.appendChild(message);
-
 
     setTimeout(() => {
 
