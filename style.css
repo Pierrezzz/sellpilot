@@ -241,11 +241,40 @@ h1 span {
     margin-top: 25px;
 }
 
-#preview img {
-    max-width: 260px;
-    max-height: 300px;
-    border-radius: 12px;
+.preview-header {
+    margin-bottom: 12px;
+    text-align: left;
+    color: #667085;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+}
+
+.preview-item {
+    position: relative;
+    text-align: center;
+}
+
+.preview-item img {
+    display: block;
+    width: 100%;
+    height: 150px;
     object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+}
+
+.preview-item span {
+    display: block;
+    margin-top: 6px;
+    color: #9ca3af;
+    font-size: 11px;
 }
 
 .generate-button {
@@ -264,6 +293,11 @@ h1 span {
 
 .generate-button:hover {
     background: #374151;
+}
+
+.generate-button:disabled {
+    opacity: 0.7;
+    cursor: wait;
 }
 
 .result {
@@ -362,39 +396,9 @@ footer p {
     margin-top: 8px;
 }
 
-@media (max-width: 750px) {
 
-    header {
-        padding: 0 5%;
-    }
-
-    nav a:not(.nav-button) {
-        display: none;
-    }
-
-    .hero {
-        padding: 80px 20px;
-    }
-
-    h1 {
-        letter-spacing: -2px;
-    }
-
-    .steps,
-    .pricing-cards {
-        grid-template-columns: 1fr;
-    }
-
-    .generator-card {
-        padding: 35px 20px;
-    }
-
-    .section-title h2 {
-        font-size: 34px;
-    }
-}
 /* ================================
-   SELLPILOT — RESULTATS IA
+   RESULTATS IA
    ================================ */
 
 .result-header {
@@ -426,9 +430,6 @@ footer p {
     background: #5b4ee8;
     transform: translateY(-1px);
 }
-
-
-/* Cartes principales */
 
 .result-card {
     background: white;
@@ -487,7 +488,9 @@ footer p {
 }
 
 
-/* Informations */
+/* ================================
+   INFORMATIONS
+   ================================ */
 
 .info-grid {
     display: grid;
@@ -518,7 +521,27 @@ footer p {
 }
 
 
-/* Prix */
+/* ================================
+   DEFAUTS
+   ================================ */
+
+.defect-card {
+    background: #fffaf5;
+    border-color: #f3dfc8;
+}
+
+.defect-card .card-header span {
+    color: #b56b18;
+}
+
+.defect-card .card-content {
+    color: #5f4a32;
+}
+
+
+/* ================================
+   PRIX
+   ================================ */
 
 .price-container {
     display: grid;
@@ -557,7 +580,9 @@ footer p {
 }
 
 
-/* À vérifier */
+/* ================================
+   A VERIFIER
+   ================================ */
 
 .confirmation-card {
     background: #fafafa;
@@ -569,7 +594,9 @@ footer p {
 }
 
 
-/* Chargement */
+/* ================================
+   CHARGEMENT
+   ================================ */
 
 .loading {
     padding: 35px 20px;
@@ -594,7 +621,9 @@ footer p {
 }
 
 
-/* Erreurs */
+/* ================================
+   ERREURS
+   ================================ */
 
 .error-message {
     color: #dc2626;
@@ -618,7 +647,9 @@ footer p {
 }
 
 
-/* Message "Copié !" */
+/* ================================
+   MESSAGE COPIE
+   ================================ */
 
 .copy-message {
     position: fixed;
@@ -649,44 +680,8 @@ footer p {
 }
 
 
-/* Mobile */
-
-@media (max-width: 750px) {
-
-    .result-header {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .copy-all-button {
-        width: 100%;
-    }
-
-    .info-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .price-container {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 450px) {
-
-    .info-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .result-card {
-        padding: 16px;
-    }
-
-    .card-content {
-        font-size: 14px;
-    }
-}
 /* ================================
-   EDITION DE L'ANNONCE
+   EDITION
    ================================ */
 
 .editable-title {
@@ -759,10 +754,92 @@ footer p {
     background: #faf9ff;
 }
 
-@media (max-width: 600px) {
+
+/* ================================
+   RESPONSIVE
+   ================================ */
+
+@media (max-width: 750px) {
+
+    header {
+        padding: 0 5%;
+    }
+
+    nav a:not(.nav-button) {
+        display: none;
+    }
+
+    .hero {
+        padding: 80px 20px;
+    }
+
+    h1 {
+        letter-spacing: -2px;
+    }
+
+    .steps,
+    .pricing-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .generator-card {
+        padding: 35px 20px;
+    }
+
+    .section-title h2 {
+        font-size: 34px;
+    }
+
+    .result-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .copy-all-button {
+        width: 100%;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .price-container {
+        grid-template-columns: 1fr;
+    }
+
+    .preview-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .preview-item img {
+        height: 140px;
+    }
+}
+
+@media (max-width: 450px) {
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .result-card {
+        padding: 16px;
+    }
+
+    .card-content {
+        font-size: 14px;
+    }
 
     .result-actions {
         grid-template-columns: 1fr;
     }
 
+    .preview-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .preview-item img {
+        height: 120px;
+    }
 }
