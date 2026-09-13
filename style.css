@@ -96,39 +96,130 @@ nav a:hover {
         #f8f9fc;
 }
 
+.hero {
+    min-height: 680px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 110px 20px 120px;
+
+    background:
+        radial-gradient(circle at 50% 5%, rgba(109, 93, 252, 0.16), transparent 34%),
+        radial-gradient(circle at 15% 70%, rgba(139, 92, 246, 0.06), transparent 28%),
+        #f7f7fb;
+
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: "";
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    top: -250px;
+    right: -180px;
+    border-radius: 50%;
+    background: rgba(109, 93, 252, 0.06);
+    filter: blur(40px);
+}
+
 .hero-content {
-    max-width: 850px;
+    max-width: 900px;
+    position: relative;
+    z-index: 1;
 }
 
 .badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
     padding: 8px 14px;
-    border-radius: 30px;
-    background: #eeecff;
+    border-radius: 999px;
+
+    background: rgba(109, 93, 252, 0.09);
+    border: 1px solid rgba(109, 93, 252, 0.15);
+
     color: #5b4ee8;
     font-size: 13px;
     font-weight: 600;
-    margin-bottom: 25px;
+
+    margin-bottom: 28px;
+
+    box-shadow: 0 4px 15px rgba(109, 93, 252, 0.06);
 }
 
 h1 {
-    font-size: clamp(48px, 7vw, 82px);
-    line-height: 1.02;
-    letter-spacing: -4px;
+    font-size: clamp(52px, 7vw, 86px);
+    line-height: 0.98;
+    letter-spacing: -5px;
     margin-bottom: 30px;
+    font-weight: 800;
 }
 
 h1 span {
     display: block;
-    color: #6d5dfc;
+
+    background: linear-gradient(
+        135deg,
+        #6d5dfc 0%,
+        #8b5cf6 50%,
+        #a855f7 100%
+    );
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .hero-content > p:not(.small-text) {
-    max-width: 650px;
+    max-width: 680px;
     margin: auto;
+
     color: #667085;
     font-size: 18px;
     line-height: 1.7;
+}
+
+.primary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: 38px;
+    padding: 16px 29px;
+
+    background: #6d5dfc;
+    color: white;
+    text-decoration: none;
+
+    border-radius: 10px;
+
+    font-weight: 600;
+    font-size: 15px;
+
+    box-shadow:
+        0 12px 30px rgba(109, 93, 252, 0.25),
+        0 2px 5px rgba(109, 93, 252, 0.15);
+
+    transition: all 0.22s ease;
+}
+
+.primary-button:hover {
+    background: #5b4ee8;
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 16px 35px rgba(109, 93, 252, 0.30),
+        0 3px 8px rgba(109, 93, 252, 0.18);
+}
+
+.small-text {
+    margin-top: 18px;
+    color: #9ca3af;
+    font-size: 13px;
 }
 
 .primary-button {
