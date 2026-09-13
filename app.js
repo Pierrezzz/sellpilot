@@ -6,6 +6,8 @@ const result = document.getElementById("result");
 let selectedImages = [];
 let currentData = {};
 
+const MAX_IMAGES = 10;
+
 
 // ================================
 // PHOTO UPLOAD
@@ -15,18 +17,14 @@ if (photoInput) {
 
     photoInput.addEventListener("change", function (event) {
 
-        const files = Array.from(
-            event.target.files || []
-        );
+        const files = Array.from(event.target.files || []);
 
         if (!files.length) {
             return;
         }
 
-        // Garder uniquement les images
         const imageFiles = files.filter(file =>
-            file.type &&
-            file.type.startsWith("image/")
+            file.type && file.type.startsWith("image/")
         );
 
         if (!imageFiles.length) {
@@ -46,15 +44,32 @@ if (photoInput) {
             return;
         }
 
-        // Maximum 10 photos
-        selectedImages =
-            imageFiles.slice(0, 10);
+        /*
+         * On ajoute les nouvelles photos aux photos déjà sélectionnées.
+         * Cela permet de sélectionner les photos en plusieurs fois.
+         */
+        const availableSlots =
+            MAX_IMAGES - selectedImages.length;
+
+        const filesToAdd =
+            imageFiles.slice(0, availableSlots);
+
+        selectedImages = [
+            ...selectedImages,
+            ...filesToAdd
+        ];
 
         displayImagePreviews();
 
         if (result) {
             result.innerHTML = "";
         }
+
+        /*
+         * Permet de sélectionner à nouveau les mêmes photos
+         * après une suppression.
+         */
+        photoInput.value = "";
 
     });
 
@@ -73,28 +88,41 @@ function displayImagePreviews() {
 
     preview.innerHTML = "";
 
-    // Header
+    if (!selectedImages.length) {
+        return;
+    }
+
+
+    // ================================
+    // HEADER
+    // ================================
+
     const header =
         document.createElement("div");
 
     header.className =
         "preview-header";
 
-    const count =
-        selectedImages.length;
-
     header.innerHTML = `
         <span>
-            ${count}
-            photo${count > 1 ? "s" : ""}
-            sélectionnée${count > 1 ? "s" : ""}
+            ${selectedImages.length}
+            photo${selectedImages.length > 1 ? "s" : ""}
+            sélectionnée${selectedImages.length > 1 ? "s" : ""}
+        </span>
+
+        <span>
+            ${MAX_IMAGES - selectedImages.length}
+            restante${MAX_IMAGES - selectedImages.length > 1 ? "s" : ""}
         </span>
     `;
 
     preview.appendChild(header);
 
 
-    // Grille
+    // ================================
+    // GRILLE
+    // ================================
+
     const grid =
         document.createElement("div");
 
@@ -102,74 +130,153 @@ function displayImagePreviews() {
         "preview-grid";
 
 
-    selectedImages.forEach(
-        (file, index) => {
+    selectedImages.forEach((file, index) => {
 
-            const item =
-                document.createElement("div");
+        const item =
+            document.createElement("div");
 
-            item.className =
-                "preview-item";
+        item.className =
+            "preview-item";
 
 
-            const image =
-                document.createElement("img");
+        // IMAGE
+
+        const image =
+            document.createElement("img");
+
+        image.alt =
+            `Photo ${index + 1}`;
+
+        image.loading =
+            "lazy";
+
+        image.style.width =
+            "100%";
+
+        image.style.height =
+            "100%";
+
+        image.style.objectFit =
+            "cover";
+
+
+        const imageURL =
+            URL.createObjectURL(file);
+
+        image.src =
+            imageURL;
+
+
+        image.onload = function () {
+
+            URL.revokeObjectURL(imageURL);
+
+        };
+
+
+        image.onerror = function () {
+
+            URL.revokeObjectURL(imageURL);
 
             image.alt =
-                `Photo ${index + 1}`;
+                "Impossible d'afficher cette image";
 
-            image.loading = "lazy";
-
-            image.style.width = "100%";
-            image.style.height = "100%";
-            image.style.objectFit = "cover";
+        };
 
 
-            const imageURL =
-                URL.createObjectURL(file);
+        // NUMERO DE PHOTO
 
-            image.src =
-                imageURL;
+        const label =
+            document.createElement("span");
 
-
-            image.onload = function () {
-
-                URL.revokeObjectURL(
-                    imageURL
-                );
-
-            };
+        label.textContent =
+            `Photo ${index + 1}`;
 
 
-            image.onerror = function () {
+        // BOUTON SUPPRIMER
 
-                URL.revokeObjectURL(
-                    imageURL
-                );
+        const deleteButton =
+            document.createElement("button");
 
-                image.alt =
-                    "Impossible d'afficher cette image";
+        deleteButton.type =
+            "button";
 
-            };
+        deleteButton.className =
+            "delete-photo-button";
+
+        deleteButton.setAttribute(
+            "aria-label",
+            `Supprimer la photo ${index + 1}`
+        );
+
+        deleteButton.innerHTML =
+            "×";
 
 
-            const label =
-                document.createElement("span");
+        deleteButton.addEventListener(
+            "click",
+            function (event) {
 
-            label.textContent =
-                `Photo ${index + 1}`;
+                event.preventDefault();
+                event.stopPropagation();
+
+                removeImage(index);
+
+            }
+        );
 
 
-            item.appendChild(image);
-            item.appendChild(label);
+        item.appendChild(image);
+        item.appendChild(label);
+        item.appendChild(deleteButton);
 
-            grid.appendChild(item);
+        grid.appendChild(item);
 
-        }
-    );
+    });
 
 
     preview.appendChild(grid);
+
+
+    // ================================
+    // MESSAGE MAXIMUM
+    // ================================
+
+    if (selectedImages.length >= MAX_IMAGES) {
+
+        const maxMessage =
+            document.createElement("div");
+
+        maxMessage.className =
+            "preview-limit";
+
+        maxMessage.textContent =
+            "Maximum de 10 photos atteint.";
+
+        preview.appendChild(maxMessage);
+
+    }
+
+}
+
+
+// ================================
+// SUPPRIMER UNE PHOTO
+// ================================
+
+function removeImage(index) {
+
+    if (
+        index < 0 ||
+        index >= selectedImages.length
+    ) {
+        return;
+    }
+
+    selectedImages.splice(index, 1);
+
+    displayImagePreviews();
+
 }
 
 
@@ -195,7 +302,8 @@ if (generateButton) {
             }
 
 
-            generateButton.disabled = true;
+            generateButton.disabled =
+                true;
 
             generateButton.textContent =
                 "Analyse en cours...";
@@ -218,7 +326,10 @@ if (generateButton) {
 
             try {
 
-                // Compression des photos
+                // ================================
+                // COMPRESSION DES PHOTOS
+                // ================================
+
                 const images =
                     await Promise.all(
                         selectedImages.map(
@@ -228,7 +339,10 @@ if (generateButton) {
                     );
 
 
-                // Envoi vers l'API
+                // ================================
+                // ENVOI API
+                // ================================
+
                 const response =
                     await fetch(
                         "/api/generate",
@@ -629,8 +743,6 @@ function displayResult(text) {
         </div>
 
 
-        <!-- TITRE -->
-
         <div class="result-card">
 
             <div class="card-header">
@@ -658,8 +770,6 @@ function displayResult(text) {
         </div>
 
 
-        <!-- DESCRIPTION -->
-
         <div class="result-card">
 
             <div class="card-header">
@@ -685,8 +795,6 @@ function displayResult(text) {
 
         </div>
 
-
-        <!-- INFORMATIONS -->
 
         <div class="info-grid">
 
@@ -747,8 +855,6 @@ function displayResult(text) {
         </div>
 
 
-        <!-- DEFAUTS VISIBLES -->
-
         <div class="result-card defect-card">
 
             <div class="card-header">
@@ -769,8 +875,6 @@ function displayResult(text) {
 
         </div>
 
-
-        <!-- MOTS-CLES -->
 
         <div class="result-card keywords-card">
 
@@ -798,8 +902,6 @@ function displayResult(text) {
 
         </div>
 
-
-        <!-- PRIX -->
 
         <div class="price-container">
 
@@ -834,8 +936,6 @@ function displayResult(text) {
         </div>
 
 
-        <!-- CONFIRMATIONS -->
-
         <div class="result-card confirmation-card">
 
             <div class="card-header">
@@ -856,8 +956,6 @@ function displayResult(text) {
 
         </div>
 
-
-        <!-- ACTIONS -->
 
         <div class="result-actions">
 
@@ -1143,7 +1241,7 @@ function newListing() {
     }
 
 }
- 
+
 
 // ================================
 // SECURITE HTML
