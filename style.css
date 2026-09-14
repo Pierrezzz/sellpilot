@@ -1734,3 +1734,77 @@ footer p {
     font-size: 13px;
     color: #777;
 }
+
+
+/* ================================
+   BOUTON COPIER L'ANNONCE
+================================ */
+
+.copy-all-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    min-height: 48px;
+    padding: 12px 22px;
+
+    border: none;
+    border-radius: 14px;
+
+    background: linear-gradient(135deg, #111111, #343434);
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.copy-all-button:hover {
+    background: linear-gradient(135deg, #292929, #505050);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.2);
+}
+
+.copy-all-button:active {
+    transform: translateY(0);
+}
+
+.copy-all-button:focus-visible {
+    outline: 3px solid rgba(17, 17, 17, 0.3);
+    outline-offset: 4px;
+}
+
+/* Bouton principal situé dans l'en-tête des résultats */
+
+.result-header .copy-all-button {
+    margin-left: auto;
+}
+
+/* Sur mobile */
+
+@media (max-width: 600px) {
+
+    .result-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .result-header .copy-all-button {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .result-actions .copy-all-button {
+        width: 100%;
+    }
+
+}
