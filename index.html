@@ -188,7 +188,10 @@
     </footer>
 
 
-    <script src="app.js"></script>
+  const SUPABASE_URL = "https://dslgibpwmakdfckrmdui.supabase.co";
+const SUPABASE_ANON_KEY = "TA_CLE_ANON_ICI";
 
-</body>
-</html>
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
