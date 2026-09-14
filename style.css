@@ -1829,40 +1829,68 @@ footer p {
     font-weight: 600;
 }
 
+/* ================================
+   BARRE DE PROGRESSION VISIBLE
+================================ */
+
 .loading::after {
     content: "";
+
     display: block;
+    position: relative;
 
     width: 100%;
-    height: 8px;
+    height: 9px;
 
     margin-top: 22px;
 
     overflow: hidden;
     border-radius: 999px;
 
-    background: #e9e9e9;
+    background: #e5e5e5;
+}
 
-    background-image: linear-gradient(
+/* Partie noire animée */
+
+.loading::before {
+    content: "";
+
+    display: block;
+    position: relative;
+
+    width: 35%;
+    height: 9px;
+
+    margin-bottom: -9px;
+
+    border-radius: 999px;
+
+    background: linear-gradient(
         90deg,
-        #111111 0%,
-        #777777 50%,
-        #111111 100%
+        #111111,
+        #555555,
+        #111111
     );
 
     background-size: 200% 100%;
 
-    animation: loadingProgress 1.6s ease-in-out infinite;
+    animation: visibleProgress 2s ease-in-out infinite;
+
+    z-index: 2;
 }
 
-@keyframes loadingProgress {
+@keyframes visibleProgress {
 
     0% {
-        background-position: 200% 0;
+        transform: translateX(-110%);
+    }
+
+    50% {
+        transform: translateX(150%);
     }
 
     100% {
-        background-position: -200% 0;
+        transform: translateX(290%);
     }
 
 }
