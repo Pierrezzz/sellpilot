@@ -839,21 +839,72 @@ CONFIRMATIONS NÉCESSAIRES
                 );
 
 
-            // ==========================================
-            // PRIX AVEC TAVILY
-            // ==========================================
+           // ==========================================
+// PRIX AVEC TAVILY
+// ==========================================
 
-            if (
-                usefulResults.length > 0
-            ) {
+if (
+    usefulResults.length > 0
+) {
 
-                const marketContext =
-                    usefulResults
-                        .map(
-                            (
-                                item,
-                                index
-                            ) => `
+    // ==========================================
+    // FILTRAGE DES COMPARABLES
+    // ==========================================
+
+    const comparableResults =
+        usefulResults.filter(item => {
+
+            const combinedText =
+                `${item.title} ${item.content}`
+                    .toLowerCase();
+
+            const articleTerms = [
+                cleanTitle,
+                cleanBrand,
+                cleanCategory
+            ]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase()
+                .split(/\s+/)
+                .filter(Boolean);
+
+            // Au moins un élément important
+            // doit apparaître dans le résultat.
+            const matchingTerms =
+                articleTerms.filter(
+                    term =>
+                        combinedText.includes(
+                            term
+                        )
+                );
+
+            // Évite les résultats trop faibles.
+            return (
+                matchingTerms.length >=
+                Math.min(
+                    2,
+                    articleTerms.length
+                )
+            );
+        });
+
+    const safeResults =
+        comparableResults.length >= 2
+            ? comparableResults
+            : usefulResults.slice(0, 5);
+
+    // ==========================================
+    // CONTEXTE MARCHÉ
+    // ==========================================
+
+    const marketContext =
+        safeResults
+            .map(
+                (
+                    item,
+                    index
+                ) => `
 
 COMPARABLE ${index + 1}
 
@@ -866,11 +917,28 @@ ${item.url}
 Informations :
 ${item.content}
 `
-                        )
-                        .join("\n");
+            )
+            .join("\n");
 
+    // ==========================================
+    // PRIX INITIAL DE SÉCURITÉ
+    // ==========================================
 
-                const pricingPrompt = `Tu es expert du prix des produits d'occasion.
+    const originalRecommendedPrice =
+        extractSection(
+            text,
+            "PRIX CONSEILLÉ",
+            "PRIX DE MISE EN VENTE"
+        );
+
+    const originalListingPrice =
+        extractSection(
+            text,
+            "PRIX DE MISE EN VENTE",
+            "CONFIRMATIONS NÉCESSAIRES"
+        );
+
+    const pricingPrompt = `Tu es un expert très prudent du prix des produits d'occasion vendus sur Vinted.
 
 ARTICLE :
 
@@ -886,194 +954,346 @@ ${marque}
 Taille :
 ${taille}
 
+PRIX INITIAL ESTIMÉ PAR L'ANALYSE :
+${originalRecommendedPrice}
+
+PRIX INITIAL DE MISE EN VENTE :
+${originalListingPrice}
+
 RÉSULTATS INTERNET :
 
 ${marketContext}
 
-Analyse uniquement les comparables réellement pertinents.
+RÈGLES STRICTES :
 
-Ignore :
+1. Analyse uniquement les comparables réellement pertinents pour EXACTEMENT le même type de produit.
 
+2. Ignore absolument :
 - produits différents ;
 - modèles différents ;
 - éditions différentes ;
-- accessoires ;
+- accessoires seuls ;
 - lots ;
 - produits neufs si notre article est d'occasion ;
-- résultats manifestement aberrants.
+- résultats sans rapport ;
+- prix manifestement aberrants ;
+- résultats qui concernent une autre taille ou version lorsque cela change fortement la valeur.
 
-Les prix trouvés sont des prix demandés, pas nécessairement des prix réellement vendus.
+3. Les prix trouvés sur Internet sont des prix demandés et non forcément des prix réellement vendus.
 
-Utilise plusieurs comparables lorsque possible.
+4. Ne te laisse jamais influencer par un seul prix très élevé.
 
-Tiens compte de l'état et des défauts de notre article.
+5. Si les résultats Internet sont peu nombreux, contradictoires ou douteux, donne davantage de poids au PRIX INITIAL ESTIMÉ.
 
-Si les résultats sont mauvais ou insuffisants, reste prudent.
+6. Le prix conseillé doit rester réaliste pour une vente sur Vinted.
 
-Retourne EXACTEMENT :
+7. Le prix de mise en vente doit être supérieur ou égal au prix conseillé, mais seulement légèrement supérieur.
+
+8. Le prix de mise en vente ne doit jamais dépasser 130 % du prix conseillé.
+
+9. Si le prix conseillé initial semble déjà cohérent et que les recherches Internet sont mauvaises, conserve-le ou reste très proche de celui-ci.
+
+10. Ne crée jamais un prix extrêmement élevé uniquement parce qu'un résultat Internet affiche un montant élevé.
+
+11. Les deux valeurs doivent obligatoirement être des nombres positifs en euros.
+
+12. N'utilise aucun symbole monétaire, aucune phrase et aucun intervalle.
+
+13. Arrondis à des montants simples adaptés à Vinted.
+
+EXEMPLE DE FORMAT VALIDE :
 
 PRIX CONSEILLÉ
-[prix en euros]
+45
 
 PRIX DE MISE EN VENTE
-[prix en euros]
+49
 
-Aucune explication.`;
+Retourne EXACTEMENT ce format et rien d'autre :
 
-
-                try {
-
-                    const pricingResponse =
-                        await fetch(
-                            "https://api.openai.com/v1/responses",
-                            {
-                                method: "POST",
-
-                                headers: {
-                                    "Content-Type":
-                                        "application/json",
-
-                                    "Authorization":
-                                        `Bearer ${process.env.OPENAI_API_KEY}`
-                                },
-
-                                body: JSON.stringify({
-
-                                    model:
-                                        "gpt-5-mini",
-
-                                    input:
-                                        pricingPrompt
-
-                                })
-
-                            }
-                        );
-
-
-                    const pricingData =
-                        await pricingResponse.json();
-
-
-                    if (
-                        pricingResponse.ok
-                    ) {
-
-                        const pricingText =
-                            pricingData.output
-
-                                ?.flatMap(
-                                    item =>
-                                        item.content ||
-                                        []
-                                )
-
-                                ?.filter(
-                                    item =>
-                                        item.type ===
-                                        "output_text"
-                                )
-
-                                ?.map(
-                                    item =>
-                                        item.text
-                                )
-
-                                ?.join("\n") ||
-                                "";
-
-
-                        const newRecommendedPrice =
-                            extractSection(
-                                pricingText,
-                                "PRIX CONSEILLÉ",
-                                "PRIX DE MISE EN VENTE"
-                            );
-
-
-                        const newListingPrice =
-                            extractSection(
-                                pricingText,
-                                "PRIX DE MISE EN VENTE",
-                                null
-                            );
-
-
-                        if (
-                            newRecommendedPrice &&
-                            newListingPrice
-                        ) {
-
-                            const pricingStart =
-                                text.indexOf(
-                                    "PRIX CONSEILLÉ"
-                                );
-
-
-                            const confirmationsStart =
-                                text.indexOf(
-                                    "CONFIRMATIONS NÉCESSAIRES"
-                                );
-
-
-                            if (
-                                pricingStart !== -1 &&
-                                confirmationsStart !== -1
-                            ) {
-
-                                const beforePricing =
-                                    text.slice(
-                                        0,
-                                        pricingStart
-                                    );
-
-
-                                const confirmations =
-                                    text.slice(
-                                        confirmationsStart
-                                    );
-
-
-                                const updatedPricing =
-                                    `PRIX CONSEILLÉ
-${newRecommendedPrice}
+PRIX CONSEILLÉ
+[nombre]
 
 PRIX DE MISE EN VENTE
-${newListingPrice}`;
+[nombre]`;
 
+    try {
 
-                                const updatedText =
-                                    beforePricing +
-                                    updatedPricing +
-                                    "\n\n" +
-                                    confirmations;
+        const pricingResponse =
+            await fetch(
+                "https://api.openai.com/v1/responses",
+                {
+                    method: "POST",
 
+                    headers: {
+                        "Content-Type":
+                            "application/json",
 
-                                return res.status(
-                                    200
-                                ).json({
+                        "Authorization":
+                            `Bearer ${process.env.OPENAI_API_KEY}`
+                    },
 
-                                    result:
-                                        updatedText
+                    body: JSON.stringify({
+                        model:
+                            "gpt-5-mini",
 
-                                });
+                        input:
+                            pricingPrompt
+                    })
+                }
+            );
 
-                            }
+        const pricingData =
+            await pricingResponse.json();
 
-                        }
+        if (
+            pricingResponse.ok
+        ) {
 
-                    }
+            const pricingText =
+                pricingData.output
+                    ?.flatMap(
+                        item =>
+                            item.content ||
+                            []
+                    )
+                    ?.filter(
+                        item =>
+                            item.type ===
+                            "output_text"
+                    )
+                    ?.map(
+                        item =>
+                            item.text
+                    )
+                    ?.join("\n") ||
+                    "";
 
-                } catch (pricingError) {
-
-                    console.error(
-                        "Pricing error:",
-                        pricingError.message
+            let newRecommendedPrice =
+                extractSection(
+                    pricingText,
+                    "PRIX CONSEILLÉ",
+                    "PRIX DE MISE EN VENTE"
+                )
+                    .replace(
+                        /[^\d.,]/g,
+                        ""
+                    )
+                    .replace(
+                        ",",
+                        "."
                     );
 
+            let newListingPrice =
+                extractSection(
+                    pricingText,
+                    "PRIX DE MISE EN VENTE",
+                    null
+                )
+                    .replace(
+                        /[^\d.,]/g,
+                        ""
+                    )
+                    .replace(
+                        ",",
+                        "."
+                    );
+
+            const recommendedNumber =
+                Number(
+                    newRecommendedPrice
+                );
+
+            let listingNumber =
+                Number(
+                    newListingPrice
+                );
+
+            const originalNumber =
+                Number(
+                    String(
+                        originalRecommendedPrice
+                    )
+                        .replace(
+                            /[^\d.,]/g,
+                            ""
+                        )
+                        .replace(
+                            ",",
+                            "."
+                        )
+                );
+
+            // ==========================================
+            // VALIDATION DU PRIX CONSEILLÉ
+            // ==========================================
+
+            let finalRecommendedPrice =
+                recommendedNumber;
+
+            if (
+                !Number.isFinite(
+                    finalRecommendedPrice
+                ) ||
+                finalRecommendedPrice <= 0
+            ) {
+                finalRecommendedPrice =
+                    Number.isFinite(
+                        originalNumber
+                    ) &&
+                    originalNumber > 0
+                        ? originalNumber
+                        : 0;
+            }
+
+            // ==========================================
+            // SÉCURITÉ CONTRE LES PRIX ABERRANTS
+            // ==========================================
+
+            if (
+                Number.isFinite(
+                    originalNumber
+                ) &&
+                originalNumber > 0
+            ) {
+
+                const maximumAllowed =
+                    originalNumber * 1.5;
+
+                const minimumAllowed =
+                    originalNumber * 0.5;
+
+                if (
+                    finalRecommendedPrice >
+                    maximumAllowed
+                ) {
+                    finalRecommendedPrice =
+                        originalNumber;
                 }
 
+                if (
+                    finalRecommendedPrice <
+                    minimumAllowed
+                ) {
+                    finalRecommendedPrice =
+                        originalNumber;
+                }
             }
+
+            // ==========================================
+            // PRIX DE MISE EN VENTE
+            // ==========================================
+
+            if (
+                !Number.isFinite(
+                    listingNumber
+                ) ||
+                listingNumber <= 0
+            ) {
+                listingNumber =
+                    finalRecommendedPrice *
+                    1.1;
+            }
+
+            // Maximum absolu :
+            // 130 % du prix conseillé
+            const maximumListingPrice =
+                finalRecommendedPrice *
+                1.3;
+
+            if (
+                listingNumber >
+                maximumListingPrice
+            ) {
+                listingNumber =
+                    maximumListingPrice;
+            }
+
+            // Le prix de mise en vente
+            // ne doit jamais être inférieur
+            // au prix conseillé.
+            if (
+                listingNumber <
+                finalRecommendedPrice
+            ) {
+                listingNumber =
+                    finalRecommendedPrice;
+            }
+
+            // ==========================================
+            // ARRONDI VINTED
+            // ==========================================
+
+            finalRecommendedPrice =
+                Math.round(
+                    finalRecommendedPrice
+                );
+
+            listingNumber =
+                Math.round(
+                    listingNumber
+                );
+
+            // ==========================================
+            // REMPLACEMENT DES PRIX
+            // ==========================================
+
+            const pricingStart =
+                text.indexOf(
+                    "PRIX CONSEILLÉ"
+                );
+
+            const confirmationsStart =
+                text.indexOf(
+                    "CONFIRMATIONS NÉCESSAIRES"
+                );
+
+            if (
+                pricingStart !== -1 &&
+                confirmationsStart !== -1
+            ) {
+
+                const beforePricing =
+                    text.slice(
+                        0,
+                        pricingStart
+                    );
+
+                const confirmations =
+                    text.slice(
+                        confirmationsStart
+                    );
+
+                const updatedPricing =
+                    `PRIX CONSEILLÉ
+${finalRecommendedPrice}
+
+PRIX DE MISE EN VENTE
+${listingNumber}`;
+
+                const updatedText =
+                    beforePricing +
+                    updatedPricing +
+                    "\n\n" +
+                    confirmations;
+
+                return res.status(
+                    200
+                ).json({
+                    result:
+                        updatedText
+                });
+            }
+        }
+
+    } catch (pricingError) {
+
+        console.error(
+            "Pricing error:",
+            pricingError.message
+        );
+    }
+}
 
 
             // ==========================================
